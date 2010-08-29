@@ -1,0 +1,39 @@
+﻿using System;
+using System.Data.SqlClient;
+using System.IO;
+
+namespace ServiceBroker.Net {
+    public class Message {
+
+        internal static Message Load(SqlDataReader reader) {
+            var message = new Message();
+            //			RECEIVE conversation_group_id, conversation_handle, 
+            //				message_sequence_number, service_name, service_contract_name, 
+            //				message_type_name, validation, message_body
+            //			FROM Queue
+            message.ConversationGroupId = reader.GetGuid(0);
+            message.ConversationHandle = reader.GetGuid(1);
+            message.MessageSequenceNumber = reader.GetInt64(2);
+            message.ServiceName = reader.GetString(3);
+            message.ServiceContractName = reader.GetString(4);
+            message.MessageTypeName = reader.GetString(5);
+            //m_validation = reader.GetString(6);
+            if (!reader.IsDBNull(7)) {
+                var bodyStreamReader = new StreamReader(reader.GetSqlBytes(7).Stream);
+                message.Body = bodyStreamReader.ReadToEnd();
+            } else
+                message.Body = string.Empty;
+            return message;
+        }
+
+        public Guid ConversationGroupId { get; private set; }
+        public Guid ConversationHandle { get; private set; }
+        public long MessageSequenceNumber { get; private set; }
+        public string ServiceName { get; private set; }
+        public string ServiceContractName { get; private set; }
+        public string MessageTypeName { get; private set; }
+        public string Body { get; private set; }
+
+        private Message() { }
+    }
+}

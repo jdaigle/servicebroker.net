@@ -1,0 +1,186 @@
+﻿using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Text;
+
+namespace ServiceBroker.Net {
+    public static class ServiceBroker {
+
+        public static Guid BeginConversation(IDbTransaction transaction, string initiatorServiceName, string targetServiceName, string messageContractName) {
+            return BeginConversationInternal(transaction, initiatorServiceName, targetServiceName, messageContractName, null, null);
+        }
+
+        public static Guid BeginConversation(IDbTransaction transaction, string initiatorServiceName, string targetServiceName, string messageContractName, int lifetime) {
+            return BeginConversationInternal(transaction, initiatorServiceName, targetServiceName, messageContractName, lifetime, null);
+        }
+
+        public static Guid BeginConversation(IDbTransaction transaction, string initiatorServiceName, string targetServiceName, string messageContractName, bool encryption) {
+            return BeginConversationInternal(transaction, initiatorServiceName, targetServiceName, messageContractName, null, encryption);
+        }
+
+        public static Guid BeginConversation(IDbTransaction transaction, string initiatorServiceName, string targetServiceName, string messageContractName, int lifetime, bool encryption) {
+            return BeginConversationInternal(transaction, initiatorServiceName, targetServiceName, messageContractName, lifetime, encryption);
+        }
+
+        public static void EndConversation(IDbTransaction transaction, Guid conversationHandle) {
+            EndConversation(transaction, conversationHandle, false);
+        }
+
+        public static void EndConversation(IDbTransaction transaction, Guid conversationHandle, bool withCleanup) {
+            EndConversationInternal(transaction, conversationHandle, false, null, null, withCleanup);
+        }
+
+        public static void EndConversation(IDbTransaction transaction, Guid conversationHandle, int errorCode, string errorDescription) {
+            EndConversationInternal(transaction, conversationHandle, true, errorCode, errorDescription, false);
+        }
+
+        public static void Send(IDbTransaction transaction, Guid conversationHandle, string messageType) {
+            Send(transaction, conversationHandle, messageType, null);
+        }
+
+        public static void Send(IDbTransaction transaction, Guid conversationHandle, string messageType, string body) {
+            SendInternal(transaction, conversationHandle, messageType, body);
+        }
+
+        public static Message Receive(IDbTransaction transaction, string queueName) {
+            return ReceiveInternal(transaction, queueName, null, false, null);
+        }
+
+        public static Message Receive(IDbTransaction transaction, string queueName, Guid conversationHandle) {
+            return ReceiveInternal(transaction, queueName, conversationHandle, false, null);
+        }
+
+        public static Message WaitAndReceive(IDbTransaction transaction, string queueName, int waitTimeout) {
+            return ReceiveInternal(transaction, queueName, null, true, waitTimeout);
+        }
+
+        public static Message WaitAndReceive(IDbTransaction transaction, string queueName, Guid conversationHandle, int waitTimeout) {
+            return ReceiveInternal(transaction, queueName, conversationHandle, true, waitTimeout);
+        }
+
+        private static Guid BeginConversationInternal(IDbTransaction transaction, string initiatorServiceName, string targetServiceName, string messageContractName, int? lifetime, bool? encryption) {
+            EnsureSqlTransaction(transaction);
+            var cmd = transaction.Connection.CreateCommand() as SqlCommand;
+            var query = new StringBuilder();
+
+            query.Append("BEGIN DIALOG @ch FROM SERVICE @is TO SERVICE @ts ON CONTRACT @cn WITH ENCRYPTION = ");
+
+            if (encryption.HasValue && encryption.Value)
+                query.Append("ON ");
+            else
+                query.Append("OFF ");
+
+            if (lifetime.HasValue && lifetime.Value > 0) {
+                query.Append(", LIFETIME = ");
+                query.Append(lifetime.Value);
+                query.Append(' ');
+            }
+
+            var param = cmd.Parameters.Add("@ch", SqlDbType.UniqueIdentifier);
+            param.Direction = ParameterDirection.Output;
+            param = cmd.Parameters.Add("@is", SqlDbType.NVarChar, 255);
+            param.Value = initiatorServiceName;
+            param = cmd.Parameters.Add("@ts", SqlDbType.NVarChar, 255);
+            param.Value = targetServiceName;
+            param = cmd.Parameters.Add("@cn", SqlDbType.NVarChar, 128);
+            param.Value = messageContractName;
+
+            cmd.CommandText = query.ToString();
+            cmd.Transaction = transaction as SqlTransaction;
+            cmd.ExecuteNonQuery();
+
+            var handleParam = cmd.Parameters["@ch"] as SqlParameter;
+            return (Guid)handleParam.Value;
+        }
+
+        private static void EndConversationInternal(IDbTransaction transaction, Guid conversationHandle, bool withError, int? errorCode, string errorDescription, bool withCleanup) {
+            EnsureSqlTransaction(transaction);
+            var cmd = transaction.Connection.CreateCommand() as SqlCommand;
+
+            cmd.CommandText = "END CONVERSATION @ch";
+            var param = cmd.Parameters.Add("@ch", SqlDbType.UniqueIdentifier);
+            param.Value = conversationHandle;
+
+            if (withError) {
+                cmd.CommandText += " WITH ERROR = @ec DESCRIPTION = @desc";
+                param = cmd.Parameters.Add("@ec", SqlDbType.Int);
+                param.Value = errorCode;
+                param = cmd.Parameters.Add("@desc", SqlDbType.NVarChar, 255);
+                param.Value = errorDescription;
+            } else if (withCleanup) {
+                cmd.CommandText += " WITH CLEANUP";
+            }
+
+            cmd.Transaction = transaction as SqlTransaction;
+            cmd.ExecuteNonQuery();
+        }
+
+        private static void SendInternal(IDbTransaction transaction, Guid conversationHandle, string messageType, string body) {
+            EnsureSqlTransaction(transaction);
+            var cmd = transaction.Connection.CreateCommand() as SqlCommand;
+
+            string query = "SEND ON CONVERSATION @ch MESSAGE TYPE @mt ";
+            var param = cmd.Parameters.Add("@ch", SqlDbType.UniqueIdentifier);
+            param.Value = conversationHandle;
+            param = cmd.Parameters.Add("@mt", SqlDbType.NVarChar, 255);
+            param.Value = messageType;
+
+            if (!string.IsNullOrWhiteSpace(body)) {
+                query += " (@msg)";
+                param = cmd.Parameters.Add("@msg", SqlDbType.VarBinary, -1);
+                param.Value = body;
+            }
+
+            cmd.CommandText = query;
+            cmd.Transaction = transaction as SqlTransaction;
+            cmd.ExecuteNonQuery();
+        }
+
+        public static Message ReceiveInternal(IDbTransaction transaction, string queueName, Guid? conversationHandle, bool wait, int? waitTimeout) {
+            EnsureSqlTransaction(transaction);
+            var cmd = transaction.Connection.CreateCommand() as SqlCommand;
+
+            var query = new StringBuilder();
+
+            if (wait && waitTimeout.HasValue && waitTimeout.Value > 0)
+                query.Append("WAITFOR(");
+            query.Append("RECEIVE TOP(1) ");
+
+            query.Append("conversation_group_id, conversation_handle, " +
+                         "message_sequence_number, service_name, service_contract_name, " +
+                         "message_type_name, validation, message_body " +
+                         "FROM ");
+            query.Append(queueName);
+
+            if (conversationHandle.HasValue && conversationHandle.Value != Guid.Empty) {
+                query.Append(" WHERE conversation_handle = @ch");
+                var param = cmd.Parameters.Add("@ch", SqlDbType.UniqueIdentifier);
+                param.Value = conversationHandle.Value;
+            }
+
+            if (wait && waitTimeout.HasValue && waitTimeout.Value > 0) {
+                query.Append("), TIMEOUT @to");
+                var param = cmd.Parameters.Add("@to", SqlDbType.Int);
+                param.Value = waitTimeout.Value;
+                cmd.CommandTimeout = 0;
+            }
+
+            cmd.CommandText = query.ToString();
+            cmd.Transaction = transaction as SqlTransaction;
+
+            using (var dataReader = cmd.ExecuteReader()) {
+                if (dataReader.Read()) {
+                    return Message.Load(dataReader);
+                }
+                dataReader.Close();
+            }
+
+            return null;
+        }
+
+        private static void EnsureSqlTransaction(IDbTransaction transaction) {
+            if (!(transaction is SqlTransaction))
+                throw new ArgumentException("Only SqlClient is supported", "transaction");
+        }
+    }
+}
