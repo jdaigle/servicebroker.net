@@ -163,7 +163,7 @@ namespace ServiceBroker.Net {
             if (wait && waitTimeout.HasValue && waitTimeout.Value > 0) {
                 query.Append("), TIMEOUT @to");
                 var param = cmd.Parameters.Add("@to", SqlDbType.Int);
-                param.Value = waitTimeout.Value * 1000; //milliseconds
+                param.Value = waitTimeout.Value;
                 cmd.CommandTimeout = 0;
             }
 

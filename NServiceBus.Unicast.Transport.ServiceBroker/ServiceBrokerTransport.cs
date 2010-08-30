@@ -321,7 +321,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         private void ReceiveFromQueue(SqlTransaction transaction) {
             Message message = null;
             try {
-                message = ServiceBrokerWrapper.WaitAndReceive(transaction, InputQueue, SecondsToWaitForMessage);
+                message = ServiceBrokerWrapper.WaitAndReceive(transaction, InputQueue, SecondsToWaitForMessage * 1000);
             } catch (Exception e) {
                 Logger.Error("Error in receiving message from queue.", e);
                 throw; // Throw to rollback 
