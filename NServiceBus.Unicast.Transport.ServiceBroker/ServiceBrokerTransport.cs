@@ -4,9 +4,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
-using System.Xml.Serialization;
 using log4net;
-using NServiceBus.Serialization;
 using NServiceBus.Unicast.Transport.Msmq;
 using NServiceBus.Utils;
 using ServiceBroker.Net;
@@ -16,7 +14,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
 
         public const string NServiceBusTransportMessageContract = "NServiceBusTransportMessageContract";
         public const string NServiceBusTransportMessage = "NServiceBusTransportMessage";
-        
+
         public ServiceBrokerTransport() {
             MaxRetries = 5;
             SecondsToWaitForMessage = 10;
@@ -42,8 +40,6 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         private static SqlServiceBrokerTransactionManager transactionManager;
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof(ServiceBrokerTransport));
-
-        private readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
         #endregion
 
         #region config info
@@ -69,12 +65,6 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         public string ErrorService { get; set; }
 
         /// <summary>
-        /// Sets whether or not the transport should deserialize
-        /// the body of the message placed on the queue.
-        /// </summary>
-        public bool SkipDeserialization { get; set; }
-
-        /// <summary>
         /// Sets the maximum number of times a message will be retried
         /// when an exception is thrown as a result of handling the message.
         /// This value is only relevant when <see cref="IsTransactional"/> is true.
@@ -91,11 +81,6 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         /// Default value is 10.
         /// </summary>
         public int SecondsToWaitForMessage { get; set; }
-
-        /// <summary>
-        /// Sets the object which will be used to serialize and deserialize messages.
-        /// </summary>
-        public IMessageSerializer MessageSerializer { get; set; }
 
         #endregion
 
@@ -186,17 +171,10 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         /// Starts the transport.
         /// </summary>
         public void Start() {
-            CheckConfiguration();
-
             if (!string.IsNullOrEmpty(InputQueue)) {
                 for (int i = 0; i < numberOfWorkerThreads; i++)
                     AddWorkerThread().Start();
             }
-        }
-
-        private void CheckConfiguration() {
-            if (MessageSerializer == null && !SkipDeserialization)
-                throw new InvalidOperationException("No message serializer has been configured.");
         }
 
         /// <summary>
@@ -220,19 +198,6 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         public void Send(TransportMessage m, string destination) {
             GetSqlTransactionManager().RunInTransaction(transaction => {
                 try {
-
-                    // Get the known message types contained within the transport message
-                    //var knownTypes = new Type[0];
-                    //foreach (var item in m.Headers) {
-                    //    if (item.Key == "EnclosedMessageTypes") {
-                    //        var types = UnicastBus.DeserializeEnclosedMessageTypes(item.Value);
-                    //        knownTypes = new Type[types.Count];
-                    //        for (int i = 0; i < types.Count; i++) {
-                    //            knownTypes[i] = Type.GetType(types[i]);
-                    //        }
-                    //    }
-                    //}
-
                     // Always begin and end a conversation to simulate a monologe
                     var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReturnService, destination, NServiceBusTransportMessageContract);
 
