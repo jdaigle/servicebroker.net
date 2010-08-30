@@ -9,6 +9,7 @@ using System.Threading;
 namespace TestRunner {
     class Program {
         static void Main(string[] args) {
+            System.Transactions.TransactionManager.DistributedTransactionStarted += new System.Transactions.TransactionStartedEventHandler(TransactionManager_DistributedTransactionStarted);
             var container = new Container();
 
             var bus =
@@ -16,26 +17,36 @@ namespace TestRunner {
                 .Log4Net()
                 .StructureMapBuilder(container)
                 .XmlSerializer()
-                .UnicastBus()                
+                .UnicastBus()
                     .DoNotAutoSubscribe()
                     .LoadMessageHandlers()
                 .ServiceBrokerTransport()
-                    .ReplyToService("TargetService")
-                    .InputQueue("TargetQueue")
+                    .ReplyToService("ServiceA")
+                    .InputQueue("ServiceAQueue")
                     .ConnectionString(@"Server=.\SQLEXPRESS;Database=ServiceBroker_HelloWorld;Trusted_Connection=True;")
-                    .ErrorService("Errors")
+                    .ErrorService("ServiceB")
                     .IsTransactional(true)
                     .NumberOfWorkerThreads(1)
                     .UseDistributedTransaction(false)
                 .CreateBus()
                 .Start();
 
-            bus.Send("TargetService", new TestMessage() {
-                Content = "Hello World",
+            bus.Send("ServiceA", new TestMessage() {
+                Content = "Hello World - Send()",
+            }).Register(x => {
+                Console.WriteLine(x);
+            });
+
+            bus.SendLocal(new TestMessage() {
+                Content = "Hello World - SendLocal()",
             });
 
             while (true)
                 Thread.Sleep(100);
+        }
+
+        static void TransactionManager_DistributedTransactionStarted(object sender, System.Transactions.TransactionEventArgs e) {
+            Console.WriteLine("Distributed Transaction Started");
         }
     }
 
@@ -43,4 +54,20 @@ namespace TestRunner {
     public class TestMessage : IMessage {
         public string Content { get; set; }
     }
+
+    public class TestMessageHandler : IMessageHandler<TestMessage> {
+
+        public IBus Bus { get; set; }
+
+        public void Handle(TestMessage message) {
+            Console.WriteLine(message.Content);
+            if (DateTime.Now.Second % 2 == 1) {
+                Bus.HandleCurrentMessageLater();
+            } else {
+                Bus.Return(42);
+            }
+            
+        }
+    }
+
 }

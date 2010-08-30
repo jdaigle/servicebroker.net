@@ -5,6 +5,12 @@ using System.IO;
 namespace ServiceBroker.Net {
     public class Message {
 
+        public const string EventNotificationType = "http://schemas.microsoft.com/SQL/Notifications/EventNotification";
+        public const string QueryNotificationType = "http://schemas.microsoft.com/SQL/Notifications/QueryNotification";
+        public const string DialogTimerType = "http://schemas.microsoft.com/SQL/ServiceBroker/DialogTimer";
+        public const string EndDialogType = "http://schemas.microsoft.com/SQL/ServiceBroker/EndDialog";
+        public const string ErrorType = "http://schemas.microsoft.com/SQL/ServiceBroker/Error";
+
         internal static Message Load(SqlDataReader reader) {
             var message = new Message();
             //			RECEIVE conversation_group_id, conversation_handle, 

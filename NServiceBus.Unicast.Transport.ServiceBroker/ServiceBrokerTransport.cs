@@ -11,6 +11,7 @@ using System.Transactions;
 using System.Data.SqlClient;
 using System.IO;
 using System.Text;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace NServiceBus.Unicast.Transport.ServiceBroker {
     public class ServiceBrokerTransport : ITransport {
@@ -35,6 +36,9 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
 
         [ThreadStatic]
         private static volatile string conversationHandle;
+
+        [ThreadStatic]
+        private static SqlServiceBrokerTransactionManager transactionManager;
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof(ServiceBrokerTransport));
 
@@ -163,11 +167,11 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
         /// <summary>
-        /// Gets the address of the input queue.
+        /// Gets the address the service
         /// </summary>
         public string Address {
             get {
-                return InputQueue;
+                return ReplyToService;
             }
         }
 
@@ -235,38 +239,40 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         /// <param name="m">The message to send.</param>
         /// <param name="destination">The address of the destination to send the message to.</param>
         public void Send(TransportMessage m, string destination) {
-            if (m.MessageIntent == MessageIntentEnum.Init)
-                return;
-            using (var connection = new SqlConnection(ConnectionString)) {
-                connection.Open();
-                using (var transaction = connection.BeginTransaction()) {
-                    try {
-                        var stream = new MemoryStream(100);
+            GetSqlTransactionManager().RunInTransaction(transaction => {
+                transaction.Save("UndoReceiveOnSend");
+                try {
 
-                        var knownTypes = new Type[0];
-                        foreach (var item in m.Headers) {
-                            if (item.Key == "EnclosedMessageTypes") {
-                                var types = UnicastBus.DeserializeEnclosedMessageTypes(item.Value);
-                                knownTypes = new Type[types.Count];
-                                for (int i = 0; i < types.Count; i++) {
-                                    knownTypes[i] = Type.GetType(types[i]);
-                                }
-                            }
-                        }
-                        
-                        new XmlSerializer(typeof(TransportMessage), knownTypes).Serialize(stream, m);
-                        var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReplyToService, destination, "HelloWorldContract");
-                        var bytes = stream.GetBuffer();
-                        var data = ASCIIEncoding.Default.GetString(bytes);
-                        ServiceBrokerWrapper.Send(transaction, conversationHandle, "HelloWorldMessage", stream.GetBuffer());
-                        ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
-                        transaction.Commit();
-                    } catch (Exception) {
-                        transaction.Rollback();
-                        throw;
-                    }
+                    // Get the known message types contained within the transport message
+                    //var knownTypes = new Type[0];
+                    //foreach (var item in m.Headers) {
+                    //    if (item.Key == "EnclosedMessageTypes") {
+                    //        var types = UnicastBus.DeserializeEnclosedMessageTypes(item.Value);
+                    //        knownTypes = new Type[types.Count];
+                    //        for (int i = 0; i < types.Count; i++) {
+                    //            knownTypes[i] = Type.GetType(types[i]);
+                    //        }
+                    //    }
+                    //}
+
+                    // Always begin and end a conversation to simulate a monologe
+                    var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReplyToService, destination, "NServiceBusTransportMessageContract");
+
+                    // Use the conversation handle as the message Id
+                    m.Id = conversationHandle.ToString();
+
+                    var stream = new MemoryStream(1);
+                    // Serialize the transport message
+                    new BinaryFormatter().Serialize(stream, m);
+
+
+                    ServiceBrokerWrapper.Send(transaction, conversationHandle, "NServiceBusTransportMessage", stream.GetBuffer());
+                    ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
+                } catch (Exception) {
+                    transaction.Rollback("UndoReceiveOnSend");
+                    throw;
                 }
-            }
+            });
         }
 
         /// <summary>
@@ -309,70 +315,87 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
             conversationHandle = string.Empty;
 
             if (IsTransactional)
-                new TransactionWrapper().RunInTransaction(ReceiveFromQueue, IsolationLevel, TransactionTimeout);
+                new TransactionWrapper().RunInTransaction(ProcessFromQueue, IsolationLevel, TransactionTimeout);
             else
-                ReceiveFromQueue();
+                ProcessFromQueue();
         }
 
-        private void ReceiveFromQueue() {
-            using (var connection = new SqlConnection(ConnectionString)) {
-                connection.Open();
-                using (var transaction = connection.BeginTransaction()) {
+        private void ProcessFromQueue() {
+            GetSqlTransactionManager().RunInTransaction(transaction => {
 
-                    bool errored = false;
+                // Create a transaction save point to rollback (instead of rolling back the ENTIRE transaction)
+                transaction.Save("UndoReceiveOnReceive");
 
-                    // Create a transaction save point to rollback (instead of rolling back the ENTIRE transaction)
-                    transaction.Save("UndoReceive");
-
-                    Message message = null;
-                    try {
-                        message = ServiceBrokerWrapper.WaitAndReceive(transaction, InputQueue, SecondsToWaitForMessage);
-                    } catch (Exception e) {
-                        Logger.Error("Error in receiving message from queue.", e);
-                        // Roll back to our save point
-                        transaction.Rollback("UndoReceive");
-                        errored = true;
-                        message = null;
-                    }
-
-                    try {
-                        if (message != null) {
-                            conversationHandle = message.ConversationHandle.ToString();
-
-                            //exceptions here will cause a rollback - which is what we want.
-                            if (StartedMessageProcessing != null)
-                                StartedMessageProcessing(this, null);
-
-                            var text = UnicodeEncoding.Unicode.GetString(message.Body);
-                            var text2 = UnicodeEncoding.ASCII.GetString(message.Body);
-
-                            // kablam, that was easy
-                            var result = new XmlSerializer(typeof(TransportMessage)).Deserialize(message.BodyStream) as TransportMessage;
-                            result.CopyMessagesToBody();
-
-                        }
-                    } catch (AbortHandlingCurrentMessageException) {
-                        //in case AbortHandlingCurrentMessage was called
-                        return; //don't increment failures, we want this message kept around.
-                    } catch (Exception e) {
-                        Logger.Error("Error in handling message from queue.", e);
-                        // Roll back to our save point
-                        transaction.Rollback("UndoReceive");
-                        errored = true;
-                        message = null;
-                    }
-
-                    // Always commit the transaction (it might have been rolled back to just prior to receiving)
-                    transaction.Commit();
-
-                    if (errored) {
-                        if (IsTransactional)
-                            IncrementFailuresForConversation(conversationHandle);
-                        OnFailedMessageProcessing();
-                    } else
-                        ClearFailuresForConversation(conversationHandle);
+                try {
+                    ReceiveFromQueue(transaction);
+                    ClearFailuresForConversation(conversationHandle);
+                } catch (AbortHandlingCurrentMessageException) {
+                    // Roll back to our save point
+                    transaction.Rollback("UndoReceiveOnReceive");
+                    // in case AbortHandlingCurrentMessage was called
+                    // don't increment failures, we want this message kept around.
+                } catch {
+                    // Roll back to our save point
+                    transaction.Rollback("UndoReceiveOnReceive");
+                    if (IsTransactional)
+                        IncrementFailuresForConversation(conversationHandle);
+                    OnFailedMessageProcessing();
                 }
+            });
+        }
+
+        private void ReceiveFromQueue(SqlTransaction transaction) {
+            Message message = null;
+            try {
+                message = ServiceBrokerWrapper.WaitAndReceive(transaction, InputQueue, SecondsToWaitForMessage);
+            } catch (Exception e) {
+                Logger.Error("Error in receiving message from queue.", e);
+                throw; // Throw to rollback 
             }
+
+            // No message? That's okay
+            if (message == null)
+                return;
+
+            Guid conversationHandle = message.ConversationHandle;
+            ServiceBrokerTransport.conversationHandle = message.ConversationHandle.ToString();
+
+            // Only handle transport messages
+            if (message.MessageTypeName == "NServiceBusTransportMessage") {
+
+                // exceptions here will cause a rollback - which is what we want.
+                if (StartedMessageProcessing != null)
+                    StartedMessageProcessing(this, null);
+
+                TransportMessage transportMessage = null;
+                try {
+                    // deserialize
+                    transportMessage = new BinaryFormatter().Deserialize(message.BodyStream) as TransportMessage;
+                } catch (Exception e) {
+                    Logger.Error("Error in deserializing message from queue.", e);
+                    throw; // Throw to rollback 
+                }
+
+                // Set the correlation Id
+                if (string.IsNullOrEmpty(transportMessage.IdForCorrelation))
+                    transportMessage.IdForCorrelation = transportMessage.Id;
+
+                // care about failures here
+                var exceptionNotThrown = OnTransportMessageReceived(transportMessage);
+                // and here
+                var otherExNotThrown = OnFinishedMessageProcessing();
+
+                // but need to abort takes precedence - failures aren't counted here,
+                // so messages aren't moved to the error queue.
+                if (_needToAbort)
+                    throw new AbortHandlingCurrentMessageException();
+
+                if (!(exceptionNotThrown && otherExNotThrown)) //cause rollback
+                    throw new ApplicationException("Exception occured while processing message.");
+            }
+
+            // End the conversation
+            ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
         }
 
         private bool HandledMaxRetries(string messageId) {
@@ -466,6 +489,12 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
             throw new NotImplementedException();
         }
 
+        private SqlServiceBrokerTransactionManager GetSqlTransactionManager() {
+            if (transactionManager == null)
+                transactionManager = new SqlServiceBrokerTransactionManager(ConnectionString);
+            return transactionManager;
+        }
+
         #region IDisposable Members
 
         public void Dispose() {
@@ -473,6 +502,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         }
 
         #endregion
+
 
     }
 }
