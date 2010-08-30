@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using StructureMap;
-using NServiceBus;
 using System.Threading;
+using NServiceBus;
 using NServiceBus.Unicast.Transport;
+using StructureMap;
 
 namespace TestRunner {
     class Program {
@@ -62,8 +59,9 @@ namespace TestRunner {
         public IBus Bus { get; set; }
 
         public void Handle(TestMessage message) {
-            //throw new Exception("Testing Exception Management");            
+            //
             Bus.Return(42);
+            throw new Exception("Testing Exception Management");
         }
     }
 

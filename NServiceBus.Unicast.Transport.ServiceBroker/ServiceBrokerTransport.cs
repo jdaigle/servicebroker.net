@@ -298,51 +298,52 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
 
             Guid conversationHandle = message.ConversationHandle;
             ServiceBrokerTransport.conversationHandle = message.ConversationHandle.ToString();
+            try {
+                // Only handle transport messages
+                if (message.MessageTypeName == NServiceBusTransportMessage) {
 
-            // Only handle transport messages
-            if (message.MessageTypeName == NServiceBusTransportMessage) {
+                    if (HandledMaxRetries(conversationHandle.ToString())) {
+                        Logger.Error(string.Format("Message has failed the maximum number of times allowed, ID={0}.", conversationHandle));
+                        MoveToErrorService(message);
+                        return;
+                    }
 
-                if (HandledMaxRetries(conversationHandle.ToString())) {
-                    Logger.Error(string.Format("Message has failed the maximum number of times allowed, ID={0}.", conversationHandle));
-                    MoveToErrorService(message);
-                    return;
+                    // exceptions here will cause a rollback - which is what we want.
+                    if (StartedMessageProcessing != null)
+                        StartedMessageProcessing(this, null);
+
+                    TransportMessage transportMessage = null;
+                    try {
+                        // deserialize
+                        transportMessage = new BinaryFormatter().Deserialize(message.BodyStream) as TransportMessage;
+                    } catch (Exception e) {
+                        Logger.Error("Could not extract message data.", e);
+                        MoveToErrorService(message);
+                        OnFinishedMessageProcessing(); // don't care about failures here
+                        return; // deserialization failed - no reason to try again, so don't throw
+                    }
+
+                    // Set the correlation Id
+                    if (string.IsNullOrEmpty(transportMessage.IdForCorrelation))
+                        transportMessage.IdForCorrelation = transportMessage.Id;
+
+                    // care about failures here
+                    var exceptionNotThrown = OnTransportMessageReceived(transportMessage);
+                    // and here
+                    var otherExNotThrown = OnFinishedMessageProcessing();
+
+                    // but need to abort takes precedence - failures aren't counted here,
+                    // so messages aren't moved to the error queue.
+                    if (_needToAbort)
+                        throw new AbortHandlingCurrentMessageException();
+
+                    if (!(exceptionNotThrown && otherExNotThrown)) //cause rollback
+                        throw new ApplicationException("Exception occured while processing message.");
                 }
-
-                // exceptions here will cause a rollback - which is what we want.
-                if (StartedMessageProcessing != null)
-                    StartedMessageProcessing(this, null);
-
-                TransportMessage transportMessage = null;
-                try {
-                    // deserialize
-                    transportMessage = new BinaryFormatter().Deserialize(message.BodyStream) as TransportMessage;
-                } catch (Exception e) {
-                    Logger.Error("Could not extract message data.", e);
-                    MoveToErrorService(message);
-                    OnFinishedMessageProcessing(); // don't care about failures here
-                    return; // deserialization failed - no reason to try again, so don't throw
-                }
-
-                // Set the correlation Id
-                if (string.IsNullOrEmpty(transportMessage.IdForCorrelation))
-                    transportMessage.IdForCorrelation = transportMessage.Id;
-
-                // care about failures here
-                var exceptionNotThrown = OnTransportMessageReceived(transportMessage);
-                // and here
-                var otherExNotThrown = OnFinishedMessageProcessing();
-
-                // but need to abort takes precedence - failures aren't counted here,
-                // so messages aren't moved to the error queue.
-                if (_needToAbort)
-                    throw new AbortHandlingCurrentMessageException();
-
-                if (!(exceptionNotThrown && otherExNotThrown)) //cause rollback
-                    throw new ApplicationException("Exception occured while processing message.");
+            } finally {
+                // End the conversation
+                ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
             }
-
-            // End the conversation
-            ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
         }
 
         private bool HandledMaxRetries(string messageId) {
