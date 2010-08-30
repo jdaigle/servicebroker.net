@@ -14,6 +14,9 @@ using ServiceBroker.Net;
 namespace NServiceBus.Unicast.Transport.ServiceBroker {
     public class ServiceBrokerTransport : ITransport {
 
+        public const string NServiceBusTransportMessageContract = "NServiceBusTransportMessageContract";
+        public const string NServiceBusTransportMessage = "NServiceBusTransportMessage";
+        
         public ServiceBrokerTransport() {
             MaxRetries = 5;
             SecondsToWaitForMessage = 10;
@@ -231,7 +234,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
                     //}
 
                     // Always begin and end a conversation to simulate a monologe
-                    var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReturnService, destination, "NServiceBusTransportMessageContract");
+                    var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReturnService, destination, NServiceBusTransportMessageContract);
 
                     // Use the conversation handle as the message Id
                     m.Id = conversationHandle.ToString();
@@ -241,7 +244,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
                     new BinaryFormatter().Serialize(stream, m);
 
 
-                    ServiceBrokerWrapper.Send(transaction, conversationHandle, "NServiceBusTransportMessage", stream.GetBuffer());
+                    ServiceBrokerWrapper.Send(transaction, conversationHandle, NServiceBusTransportMessage, stream.GetBuffer());
                     ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
                 } catch (Exception) {
                     transaction.Rollback("UndoReceiveOnSend");
@@ -263,7 +266,11 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         /// </summary>
         /// <returns></returns>
         public int GetNumberOfPendingMessages() {
-            throw new NotImplementedException();
+            int count = -1;
+            GetSqlTransactionManager().RunInTransaction(transaction => {
+                count = ServiceBrokerWrapper.QueryMessageCount(transaction, InputQueue, NServiceBusTransportMessage);
+            });
+            return count;
         }
 
 
@@ -328,7 +335,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
             ServiceBrokerTransport.conversationHandle = message.ConversationHandle.ToString();
 
             // Only handle transport messages
-            if (message.MessageTypeName == "NServiceBusTransportMessage") {
+            if (message.MessageTypeName == NServiceBusTransportMessage) {
 
                 if (HandledMaxRetries(conversationHandle.ToString())) {
                     Logger.Error(string.Format("Message has failed the maximum number of times allowed, ID={0}.", conversationHandle));
@@ -451,13 +458,13 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
 
         private void MoveToErrorService(Message message) {
             GetSqlTransactionManager().RunInTransaction(transaction => {
-                transaction.Save("UndoReceiveOnSend");
+                transaction.Save("UndoReceiveOnSendToErrorService");
                 try {
-                    var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReturnService, ErrorService, "NServiceBusTransportMessageContract");
-                    ServiceBrokerWrapper.Send(transaction, conversationHandle, "NServiceBusTransportMessage", message.Body);
+                    var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReturnService, ErrorService, NServiceBusTransportMessageContract);
+                    ServiceBrokerWrapper.Send(transaction, conversationHandle, NServiceBusTransportMessage, message.Body);
                     ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
                 } catch (Exception) {
-                    transaction.Rollback("UndoReceiveOnSend");
+                    transaction.Rollback("UndoReceiveOnSendToErrorService");
                     throw;
                 }
             });
@@ -472,7 +479,9 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         #region IDisposable Members
 
         public void Dispose() {
-            throw new NotImplementedException();
+            lock (workerThreads)
+                for (var i = 0; i < workerThreads.Count; i++)
+                    workerThreads[i].Stop();
         }
 
         #endregion

@@ -58,12 +58,16 @@ namespace ServiceBroker.Net {
             return ReceiveInternal(transaction, queueName, conversationHandle, true, waitTimeout);
         }
 
+        public static int QueryMessageCount(SqlTransaction transaction, string queueName, string messageContractName) {
+            return QueryMessageCountInternal(transaction, queueName, messageContractName);
+        }
+
         private static Guid BeginConversationInternal(IDbTransaction transaction, string initiatorServiceName, string targetServiceName, string messageContractName, int? lifetime, bool? encryption) {
             EnsureSqlTransaction(transaction);
             var cmd = transaction.Connection.CreateCommand() as SqlCommand;
             var query = new StringBuilder();
 
-            query.Append("BEGIN DIALOG @ch FROM SERVICE " + initiatorServiceName +  " TO SERVICE @ts ON CONTRACT @cn WITH ENCRYPTION = ");
+            query.Append("BEGIN DIALOG @ch FROM SERVICE " + initiatorServiceName + " TO SERVICE @ts ON CONTRACT @cn WITH ENCRYPTION = ");
 
             if (encryption.HasValue && encryption.Value)
                 query.Append("ON ");
@@ -174,6 +178,18 @@ namespace ServiceBroker.Net {
             }
 
             return null;
+        }
+
+        private static int QueryMessageCountInternal(SqlTransaction transaction, string queueName, string messageContractName) {
+            EnsureSqlTransaction(transaction);
+            var cmd = transaction.Connection.CreateCommand() as SqlCommand;
+
+            cmd.CommandText = "SELECT COUNT(*) FROM " + queueName + " WHERE message_type_name = @messageContractName";
+            var param = cmd.Parameters.Add("@messageContractName", SqlDbType.NVarChar, 128);
+            param.Value = messageContractName;
+            cmd.Transaction = transaction as SqlTransaction;
+
+            return (int)cmd.ExecuteScalar();
         }
 
         private static void EnsureSqlTransaction(IDbTransaction transaction) {
