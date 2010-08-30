@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using StructureMap;
 using NServiceBus;
+using System.Threading;
 
 namespace TestRunner {
     class Program {
@@ -12,12 +13,14 @@ namespace TestRunner {
 
             var bus =
             NServiceBus.Configure.With()
-                .StructureMapBuilder()
+                .Log4Net()
+                .StructureMapBuilder(container)
                 .XmlSerializer()
-                .UnicastBus()
+                .UnicastBus()                
                     .DoNotAutoSubscribe()
                     .LoadMessageHandlers()
                 .ServiceBrokerTransport()
+                    .ReplyToService("TargetService")
                     .InputQueue("TargetQueue")
                     .ConnectionString(@"Server=.\SQLEXPRESS;Database=ServiceBroker_HelloWorld;Trusted_Connection=True;")
                     .ErrorService("Errors")
@@ -27,12 +30,16 @@ namespace TestRunner {
                 .CreateBus()
                 .Start();
 
-            bus.Send("InitiatorService", new TestMessage() {
+            bus.Send("TargetService", new TestMessage() {
                 Content = "Hello World",
             });
+
+            while (true)
+                Thread.Sleep(100);
         }
     }
 
+    [Serializable]
     public class TestMessage : IMessage {
         public string Content { get; set; }
     }

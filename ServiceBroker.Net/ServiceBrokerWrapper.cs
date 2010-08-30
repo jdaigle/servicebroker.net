@@ -63,7 +63,7 @@ namespace ServiceBroker.Net {
             var cmd = transaction.Connection.CreateCommand() as SqlCommand;
             var query = new StringBuilder();
 
-            query.Append("BEGIN DIALOG @ch FROM SERVICE @is TO SERVICE @ts ON CONTRACT @cn WITH ENCRYPTION = ");
+            query.Append("BEGIN DIALOG @ch FROM SERVICE " + initiatorServiceName +  " TO SERVICE @ts ON CONTRACT @cn WITH ENCRYPTION = ");
 
             if (encryption.HasValue && encryption.Value)
                 query.Append("ON ");
@@ -78,16 +78,14 @@ namespace ServiceBroker.Net {
 
             var param = cmd.Parameters.Add("@ch", SqlDbType.UniqueIdentifier);
             param.Direction = ParameterDirection.Output;
-            param = cmd.Parameters.Add("@is", SqlDbType.NVarChar, 255);
-            param.Value = initiatorServiceName;
-            param = cmd.Parameters.Add("@ts", SqlDbType.NVarChar, 255);
+            param = cmd.Parameters.Add("@ts", SqlDbType.NVarChar, 256);
             param.Value = targetServiceName;
             param = cmd.Parameters.Add("@cn", SqlDbType.NVarChar, 128);
             param.Value = messageContractName;
 
             cmd.CommandText = query.ToString();
             cmd.Transaction = transaction as SqlTransaction;
-            cmd.ExecuteNonQuery();
+            var count = cmd.ExecuteNonQuery();
 
             var handleParam = cmd.Parameters["@ch"] as SqlParameter;
             return (Guid)handleParam.Value;
@@ -112,7 +110,7 @@ namespace ServiceBroker.Net {
             }
 
             cmd.Transaction = transaction as SqlTransaction;
-            cmd.ExecuteNonQuery();
+            var count = cmd.ExecuteNonQuery();
         }
 
         private static void SendInternal(IDbTransaction transaction, Guid conversationHandle, string messageType, byte[] body) {
@@ -133,7 +131,7 @@ namespace ServiceBroker.Net {
 
             cmd.CommandText = query;
             cmd.Transaction = transaction as SqlTransaction;
-            cmd.ExecuteNonQuery();
+            var count = cmd.ExecuteNonQuery();
         }
 
         private static Message ReceiveInternal(IDbTransaction transaction, string queueName, Guid? conversationHandle, bool wait, int? waitTimeout) {
@@ -161,7 +159,7 @@ namespace ServiceBroker.Net {
             if (wait && waitTimeout.HasValue && waitTimeout.Value > 0) {
                 query.Append("), TIMEOUT @to");
                 var param = cmd.Parameters.Add("@to", SqlDbType.Int);
-                param.Value = waitTimeout.Value;
+                param.Value = waitTimeout.Value * 1000; //milliseconds
                 cmd.CommandTimeout = 0;
             }
 

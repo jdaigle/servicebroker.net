@@ -9,6 +9,8 @@ using NServiceBus.Unicast.Transport.Msmq;
 using ServiceBroker.Net;
 using System.Transactions;
 using System.Data.SqlClient;
+using System.IO;
+using System.Text;
 
 namespace NServiceBus.Unicast.Transport.ServiceBroker {
     public class ServiceBrokerTransport : ITransport {
@@ -223,8 +225,8 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         /// which may break message ordering.
         /// </remarks>
         public void ReceiveMessageLater(TransportMessage m) {
-            if (!string.IsNullOrEmpty(InputQueue))
-                Send(m, InputQueue);
+            if (!string.IsNullOrEmpty(ReplyToService))
+                Send(m, ReplyToService);
         }
 
         /// <summary>
@@ -233,7 +235,38 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         /// <param name="m">The message to send.</param>
         /// <param name="destination">The address of the destination to send the message to.</param>
         public void Send(TransportMessage m, string destination) {
-            throw new NotImplementedException();
+            if (m.MessageIntent == MessageIntentEnum.Init)
+                return;
+            using (var connection = new SqlConnection(ConnectionString)) {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction()) {
+                    try {
+                        var stream = new MemoryStream(100);
+
+                        var knownTypes = new Type[0];
+                        foreach (var item in m.Headers) {
+                            if (item.Key == "EnclosedMessageTypes") {
+                                var types = UnicastBus.DeserializeEnclosedMessageTypes(item.Value);
+                                knownTypes = new Type[types.Count];
+                                for (int i = 0; i < types.Count; i++) {
+                                    knownTypes[i] = Type.GetType(types[i]);
+                                }
+                            }
+                        }
+                        
+                        new XmlSerializer(typeof(TransportMessage), knownTypes).Serialize(stream, m);
+                        var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReplyToService, destination, "HelloWorldContract");
+                        var bytes = stream.GetBuffer();
+                        var data = ASCIIEncoding.Default.GetString(bytes);
+                        ServiceBrokerWrapper.Send(transaction, conversationHandle, "HelloWorldMessage", stream.GetBuffer());
+                        ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
+                        transaction.Commit();
+                    } catch (Exception) {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -283,6 +316,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
 
         private void ReceiveFromQueue() {
             using (var connection = new SqlConnection(ConnectionString)) {
+                connection.Open();
                 using (var transaction = connection.BeginTransaction()) {
 
                     bool errored = false;
@@ -292,7 +326,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
 
                     Message message = null;
                     try {
-                        message = ServiceBrokerWrapper.WaitAndReceive(null, InputQueue, SecondsToWaitForMessage);
+                        message = ServiceBrokerWrapper.WaitAndReceive(transaction, InputQueue, SecondsToWaitForMessage);
                     } catch (Exception e) {
                         Logger.Error("Error in receiving message from queue.", e);
                         // Roll back to our save point
@@ -308,9 +342,14 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
                             //exceptions here will cause a rollback - which is what we want.
                             if (StartedMessageProcessing != null)
                                 StartedMessageProcessing(this, null);
-                            
+
+                            var text = UnicodeEncoding.Unicode.GetString(message.Body);
+                            var text2 = UnicodeEncoding.ASCII.GetString(message.Body);
+
                             // kablam, that was easy
-                            var result = new XmlSerializer(typeof(TransportMessage)).Deserialize(message.BodyStream) as TransportMessage;                            
+                            var result = new XmlSerializer(typeof(TransportMessage)).Deserialize(message.BodyStream) as TransportMessage;
+                            result.CopyMessagesToBody();
+
                         }
                     } catch (AbortHandlingCurrentMessageException) {
                         //in case AbortHandlingCurrentMessage was called

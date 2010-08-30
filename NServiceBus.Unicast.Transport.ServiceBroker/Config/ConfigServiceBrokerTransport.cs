@@ -26,10 +26,16 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker.Config {
                 transportConfig.ConfigureProperty(t => t.ErrorService, cfg.ErrorService);
                 transportConfig.ConfigureProperty(t => t.MaxRetries, cfg.MaxRetries);
                 ConnectionString(ConfigurationManager.ConnectionStrings[cfg.ConnectionStringName].ConnectionString);
+                ReplyToService(cfg.ReplyToService);
             }
         }
 
         private IComponentConfig<ServiceBrokerTransport> transportConfig;
+
+        public ConfigServiceBrokerTransport ReplyToService(string value) {
+            transportConfig.ConfigureProperty(t => t.ReplyToService, value);
+            return this;
+        }
 
         public ConfigServiceBrokerTransport ConnectionString(string value) {
             transportConfig.ConfigureProperty(t => t.ConnectionString, value);
