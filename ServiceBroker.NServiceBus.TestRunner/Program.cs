@@ -21,13 +21,12 @@ namespace TestRunner {
                     .DoNotAutoSubscribe()
                     .LoadMessageHandlers()
                 .ServiceBrokerTransport()
-                    .ReplyToService("ServiceA")
+                    .ReturnService("ServiceA")
                     .InputQueue("ServiceAQueue")
                     .ConnectionString(@"Server=.\SQLEXPRESS;Database=ServiceBroker_HelloWorld;Trusted_Connection=True;")
-                    .ErrorService("ServiceB")
-                    .IsTransactional(true)
-                    .NumberOfWorkerThreads(1)
-                    .UseDistributedTransaction(false)
+                    .ErrorService("ErrorService")
+                    .MaxRetries(2)
+                    .NumberOfWorkerThreads(2)
                 .CreateBus()
                 .Start();
 
@@ -60,13 +59,8 @@ namespace TestRunner {
         public IBus Bus { get; set; }
 
         public void Handle(TestMessage message) {
-            Console.WriteLine(message.Content);
-            if (DateTime.Now.Second % 2 == 1) {
-                Bus.HandleCurrentMessageLater();
-            } else {
-                Bus.Return(42);
-            }
-            
+            throw new Exception("Testing Exception Management");            
+            //Bus.Return(42);
         }
     }
 

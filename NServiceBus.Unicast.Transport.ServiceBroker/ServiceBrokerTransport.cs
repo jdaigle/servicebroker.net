@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 using System.Xml.Serialization;
 using log4net;
 using NServiceBus.Serialization;
-using NServiceBus.Utils;
-using System.Threading;
 using NServiceBus.Unicast.Transport.Msmq;
+using NServiceBus.Utils;
 using ServiceBroker.Net;
-using System.Transactions;
-using System.Data.SqlClient;
-using System.IO;
-using System.Text;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace NServiceBus.Unicast.Transport.ServiceBroker {
     public class ServiceBrokerTransport : ITransport {
@@ -48,9 +46,9 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         #region config info
 
         /// <summary>
-        /// The name of the service that is appended as the reply-to endpoint
+        /// The name of the service that is appended as the return endpoint
         /// </summary>
-        public string ReplyToService { get; set; }
+        public string ReturnService { get; set; }
 
         /// <summary>
         /// Sql connection string to the service hosting the service broker
@@ -66,16 +64,6 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         /// Sets the service the transport will transfer errors to.
         /// </summary>
         public string ErrorService { get; set; }
-
-        /// <summary>
-        /// Sets whether or not the transport is transactional.
-        /// </summary>
-        public bool IsTransactional { get; set; }
-
-        /// <summary>
-        /// Sets whether a distributed transaction scope is to be used
-        /// </summary>
-        public bool UseDistributedTransaction { get; set; }
 
         /// <summary>
         /// Sets whether or not the transport should deserialize
@@ -100,18 +88,6 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         /// Default value is 10.
         /// </summary>
         public int SecondsToWaitForMessage { get; set; }
-
-        /// <summary>
-        /// Property for getting/setting the period of time when the transaction times out.
-        /// Only relevant when <see cref="IsTransactional"/> is set to true.
-        /// </summary>
-        public TimeSpan TransactionTimeout { get; set; }
-
-        /// <summary>
-        /// Property for getting/setting the isolation level of the transaction scope.
-        /// Only relevant when <see cref="IsTransactional"/> is set to true.
-        /// </summary>
-        public IsolationLevel IsolationLevel { get; set; }
 
         /// <summary>
         /// Sets the object which will be used to serialize and deserialize messages.
@@ -171,7 +147,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         /// </summary>
         public string Address {
             get {
-                return ReplyToService;
+                return ReturnService;
             }
         }
 
@@ -229,8 +205,8 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         /// which may break message ordering.
         /// </remarks>
         public void ReceiveMessageLater(TransportMessage m) {
-            if (!string.IsNullOrEmpty(ReplyToService))
-                Send(m, ReplyToService);
+            if (!string.IsNullOrEmpty(ReturnService))
+                Send(m, ReturnService);
         }
 
         /// <summary>
@@ -240,7 +216,6 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         /// <param name="destination">The address of the destination to send the message to.</param>
         public void Send(TransportMessage m, string destination) {
             GetSqlTransactionManager().RunInTransaction(transaction => {
-                transaction.Save("UndoReceiveOnSend");
                 try {
 
                     // Get the known message types contained within the transport message
@@ -256,7 +231,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
                     //}
 
                     // Always begin and end a conversation to simulate a monologe
-                    var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReplyToService, destination, "NServiceBusTransportMessageContract");
+                    var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReturnService, destination, "NServiceBusTransportMessageContract");
 
                     // Use the conversation handle as the message Id
                     m.Id = conversationHandle.ToString();
@@ -314,13 +289,6 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
             _needToAbort = false;
             conversationHandle = string.Empty;
 
-            if (IsTransactional)
-                new TransactionWrapper().RunInTransaction(ProcessFromQueue, IsolationLevel, TransactionTimeout);
-            else
-                ProcessFromQueue();
-        }
-
-        private void ProcessFromQueue() {
             GetSqlTransactionManager().RunInTransaction(transaction => {
 
                 // Create a transaction save point to rollback (instead of rolling back the ENTIRE transaction)
@@ -337,8 +305,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
                 } catch {
                     // Roll back to our save point
                     transaction.Rollback("UndoReceiveOnReceive");
-                    if (IsTransactional)
-                        IncrementFailuresForConversation(conversationHandle);
+                    IncrementFailuresForConversation(conversationHandle);
                     OnFailedMessageProcessing();
                 }
             });
@@ -363,6 +330,12 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
             // Only handle transport messages
             if (message.MessageTypeName == "NServiceBusTransportMessage") {
 
+                if (HandledMaxRetries(conversationHandle.ToString())) {
+                    Logger.Error(string.Format("Message has failed the maximum number of times allowed, ID={0}.", conversationHandle));
+                    MoveToErrorService(message);
+                    return;
+                }
+
                 // exceptions here will cause a rollback - which is what we want.
                 if (StartedMessageProcessing != null)
                     StartedMessageProcessing(this, null);
@@ -372,8 +345,10 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
                     // deserialize
                     transportMessage = new BinaryFormatter().Deserialize(message.BodyStream) as TransportMessage;
                 } catch (Exception e) {
-                    Logger.Error("Error in deserializing message from queue.", e);
-                    throw; // Throw to rollback 
+                    Logger.Error("Could not extract message data.", e);
+                    MoveToErrorService(message);
+                    OnFinishedMessageProcessing(); // don't care about failures here
+                    return; // deserialization failed - no reason to try again, so don't throw
                 }
 
                 // Set the correlation Id
@@ -474,19 +449,18 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
             return true;
         }
 
-        /// <summary>
-        /// Moves the given message to the configured error queue.
-        /// </summary>
-        /// <param name="m"></param>
-        protected void MoveToErrorQueue(SqlTransaction transaction, Message m) {
-            //m.Label = m.Label +
-            //          string.Format("<{0}>{1}</{0}><{2}>{3}<{2}>", FAILEDQUEUE, MsmqUtilities.GetIndependentAddressForQueue(queue), ORIGINALID, m.Id);
-
-            //var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, InputQueue, ErrorService, ""
-            //ServiceBrokerWrapper.Send(transaction, conversationHandle, "", m.Body);
-            //ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
-
-            throw new NotImplementedException();
+        private void MoveToErrorService(Message message) {
+            GetSqlTransactionManager().RunInTransaction(transaction => {
+                transaction.Save("UndoReceiveOnSend");
+                try {
+                    var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReturnService, ErrorService, "NServiceBusTransportMessageContract");
+                    ServiceBrokerWrapper.Send(transaction, conversationHandle, "NServiceBusTransportMessage", message.Body);
+                    ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
+                } catch (Exception) {
+                    transaction.Rollback("UndoReceiveOnSend");
+                    throw;
+                }
+            });
         }
 
         private SqlServiceBrokerTransactionManager GetSqlTransactionManager() {

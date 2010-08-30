@@ -25,15 +25,15 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker.Config {
                 transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, cfg.NumberOfWorkerThreads);
                 transportConfig.ConfigureProperty(t => t.ErrorService, cfg.ErrorService);
                 transportConfig.ConfigureProperty(t => t.MaxRetries, cfg.MaxRetries);
-                ConnectionString(ConfigurationManager.ConnectionStrings[cfg.ConnectionStringName].ConnectionString);
-                ReplyToService(cfg.ReplyToService);
+                ConnectionString(cfg.ConnectionString);
+                ReturnService(cfg.ReturnService);
             }
         }
 
         private IComponentConfig<ServiceBrokerTransport> transportConfig;
 
-        public ConfigServiceBrokerTransport ReplyToService(string value) {
-            transportConfig.ConfigureProperty(t => t.ReplyToService, value);
+        public ConfigServiceBrokerTransport ReturnService(string value) {
+            transportConfig.ConfigureProperty(t => t.ReturnService, value);
             return this;
         }
 
@@ -62,57 +62,10 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker.Config {
             return this;
         }
 
-        /// <summary>
-        /// Sets the transactionality of the endpoint.
-        /// If true, the endpoint will not lose messages when exceptions occur.
-        /// If false, the endpoint may lose messages when exceptions occur.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public ConfigServiceBrokerTransport IsTransactional(bool value) {
-            transportConfig.ConfigureProperty(t => t.IsTransactional, value);
-            return this;
-        }
-
-
-        public ConfigServiceBrokerTransport UseDistributedTransaction(bool value) {
-            transportConfig.ConfigureProperty(t => t.UseDistributedTransaction, value);
-            return this;
-        }
-
         public ConfigServiceBrokerTransport SecondsToWaitForMessage(int value) {
             transportConfig.ConfigureProperty(t => t.SecondsToWaitForMessage, value);
             return this;
         }
-        
 
-        /// <summary>
-        /// Sets the isolation level that database transactions on this endpoint will run at.
-        /// This value is only relevant when IsTransactional has been set to true.
-        /// 
-        /// Higher levels like RepeatableRead and Serializable promise a higher level
-        /// of consistency, but at the cost of lower parallelism and throughput.
-        /// 
-        /// If you wish to run sagas on this endpoint, RepeatableRead is the suggested value
-        /// and is the default value.
-        /// </summary>
-        /// <param name="isolationLevel"></param>
-        /// <returns></returns>
-        public ConfigServiceBrokerTransport IsolationLevel(IsolationLevel isolationLevel) {
-            transportConfig.ConfigureProperty(t => t.IsolationLevel, isolationLevel);
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the time span where a transaction will timeout.
-        /// 
-        /// Most endpoints should leave it at the default.
-        /// </summary>
-        /// <param name="transactionTimeout"></param>
-        /// <returns></returns>
-        public ConfigServiceBrokerTransport TransactionTimeout(TimeSpan transactionTimeout) {
-            transportConfig.ConfigureProperty(t => t.TransactionTimeout, transactionTimeout);
-            return this;
-        }
     }
 }

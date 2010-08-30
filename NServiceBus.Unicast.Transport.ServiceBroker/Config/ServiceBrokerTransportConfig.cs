@@ -4,13 +4,13 @@ using System.Configuration;
 namespace NServiceBus.Config {
     public class ServiceBrokerTransportConfig : ConfigurationSection {
 
-        [ConfigurationProperty("ReplyToService", IsRequired = true)]
-        public string ReplyToService {
+        [ConfigurationProperty("ReturnService", IsRequired = true)]
+        public string ReturnService {
             get {
-                return this["ReplyToService"] as string;
+                return this["ReturnService"] as string;
             }
             set {
-                this["ReplyToService"] = value;
+                this["ReturnService"] = value;
             }
         }
 
@@ -68,13 +68,13 @@ namespace NServiceBus.Config {
             }
         }
 
-        [ConfigurationProperty("ConnectionStringName", IsRequired = true)]
-        public int ConnectionStringName {
+        [ConfigurationProperty("ConnectionString", IsRequired = true)]
+        public string ConnectionString {
             get {
-                return (int)this["ConnectionStringName"];
+                return (string)this["ConnectionString"];
             }
             set {
-                this["ConnectionStringName"] = value;
+                this["ConnectionString"] = value;
             }
         }
     }
