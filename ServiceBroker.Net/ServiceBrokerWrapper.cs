@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 using System.Text;
 
 namespace ServiceBroker.Net {
-    public static class ServiceBroker {
+    public static class ServiceBrokerWrapper {
 
         public static Guid BeginConversation(IDbTransaction transaction, string initiatorServiceName, string targetServiceName, string messageContractName) {
             return BeginConversationInternal(transaction, initiatorServiceName, targetServiceName, messageContractName, null, null);
@@ -38,7 +38,7 @@ namespace ServiceBroker.Net {
             Send(transaction, conversationHandle, messageType, null);
         }
 
-        public static void Send(IDbTransaction transaction, Guid conversationHandle, string messageType, string body) {
+        public static void Send(IDbTransaction transaction, Guid conversationHandle, string messageType, byte[] body) {
             SendInternal(transaction, conversationHandle, messageType, body);
         }
 
@@ -115,7 +115,7 @@ namespace ServiceBroker.Net {
             cmd.ExecuteNonQuery();
         }
 
-        private static void SendInternal(IDbTransaction transaction, Guid conversationHandle, string messageType, string body) {
+        private static void SendInternal(IDbTransaction transaction, Guid conversationHandle, string messageType, byte[] body) {
             EnsureSqlTransaction(transaction);
             var cmd = transaction.Connection.CreateCommand() as SqlCommand;
 
@@ -125,7 +125,7 @@ namespace ServiceBroker.Net {
             param = cmd.Parameters.Add("@mt", SqlDbType.NVarChar, 255);
             param.Value = messageType;
 
-            if (!string.IsNullOrWhiteSpace(body)) {
+            if (body != null && body.Length > 0) {
                 query += " (@msg)";
                 param = cmd.Parameters.Add("@msg", SqlDbType.VarBinary, -1);
                 param.Value = body;
@@ -136,7 +136,7 @@ namespace ServiceBroker.Net {
             cmd.ExecuteNonQuery();
         }
 
-        public static Message ReceiveInternal(IDbTransaction transaction, string queueName, Guid? conversationHandle, bool wait, int? waitTimeout) {
+        private static Message ReceiveInternal(IDbTransaction transaction, string queueName, Guid? conversationHandle, bool wait, int? waitTimeout) {
             EnsureSqlTransaction(transaction);
             var cmd = transaction.Connection.CreateCommand() as SqlCommand;
 

@@ -1,0 +1,3706 @@
+<?xml version="1.0"?>
+<doc>
+  <assembly>
+    <name>NServiceBus.Core</name>
+  </assembly>
+  <members>
+    <member name="T:NServiceBus.ObjectBuilder.ComponentCallModelEnum">
+      <summary>
+            Represent the various call models for a component.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.ObjectBuilder.ComponentCallModelEnum.None">
+      <summary>
+            Accept the default call model of the underlying technology.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.ObjectBuilder.ComponentCallModelEnum.Singleton">
+      <summary>
+            Only one instance of the component will ever be called.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.ObjectBuilder.ComponentCallModelEnum.Singlecall">
+      <summary>
+            Each call on the component will be performed on a new instance.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.ObjectBuilder.IBuilder">
+      <summary>
+            Used to instantiate types, so that all configured dependencies
+            and property values are set.
+            An abstraction on top of dependency injection frameworks.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.IBuilder.Build(System.Type)">
+      <summary>
+            Creates an instance of the given type, injecting it with all defined dependencies.
+            </summary>
+      <param name="typeToBuild">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.IBuilder.Build``1">
+      <summary>
+            Creates an instance of the given type, injecting it with all defined dependencies.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.IBuilder.BuildAll``1">
+      <summary>
+            For each type that is compatible with T, an instance is created with all dependencies injected, and yeilded to the caller.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.IBuilder.BuildAll(System.Type)">
+      <summary>
+            For each type that is compatible with the given type, an instance is created with all dependencies injected.
+            </summary>
+      <param name="typeToBuild">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.IBuilder.BuildAndDispatch(System.Type,System.Action{System.Object})">
+      <summary>
+            Builds an instance of the defined type injecting it with all defined dependencies
+            and invokes the given action on the instance.
+            </summary>
+      <param name="typeToBuild">
+      </param>
+      <param name="action">
+      </param>
+    </member>
+    <member name="T:NServiceBus.ObjectBuilder.IComponentConfig">
+      <summary>
+            Used to configure the values to be set for the various
+            properties on a component.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.IComponentConfig.ConfigureProperty(System.String,System.Object)">
+      <summary>
+            Configures the value of the named property of the component.
+            </summary>
+      <param name="name">
+      </param>
+      <param name="value">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.ObjectBuilder.IComponentConfig`1">
+      <summary>
+            Strongly typed version of IComponentConfig
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.IComponentConfig`1.ConfigureProperty(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},System.Object)">
+      <summary>
+            Configures the value of the property like so:
+            ConfigureProperty(o =&gt; o.Property, value);
+            </summary>
+      <param name="property">
+      </param>
+      <param name="value">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.ObjectBuilder.IConfigureComponents">
+      <summary>
+            Used to configure components in the container.
+            Should primarily be used at startup/initialization time.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.IConfigureComponents.ConfigureComponent(System.Type,NServiceBus.ObjectBuilder.ComponentCallModelEnum)">
+      <summary>
+            Configures the given type. Can be used to configure all kinds of properties.
+            </summary>
+      <param name="concreteComponent">
+      </param>
+      <param name="callModel">Defines whether the type should have singleton or single call sematnics.</param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.IConfigureComponents.ConfigureComponent``1(NServiceBus.ObjectBuilder.ComponentCallModelEnum)">
+      <summary>
+            Configures the given type, allowing to fluently configure properties.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <param name="callModel">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.IConfigureComponents.ConfigureProperty``1(System.Linq.Expressions.Expression{System.Func{``0,System.Object}},System.Object)">
+      <summary>
+            Configures the given property of the given type to be injected with the given value.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <param name="property">
+      </param>
+      <param name="value">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.IConfigureComponents.RegisterSingleton(System.Type,System.Object)">
+      <summary>
+            Registers the given instance as the singleton that will be returned
+            for the given type.
+            </summary>
+      <param name="lookupType">
+      </param>
+      <param name="instance">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.IConfigureComponents.RegisterSingleton``1(System.Object)">
+      <summary>
+            Registers the given instance as the singleton that will be returned
+            for the given type.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <param name="instance">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.AllAssemblies">
+      <summary>
+            Class for specifying which assemblies not to load.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.AllAssemblies.Except(System.String)">
+      <summary>
+            Indicate that the given assembly is not to be used.
+            Use the 'And' method to indicate other assemblies to be skipped.
+            </summary>
+      <param name="assembly">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.AllAssemblies.And(System.String)">
+      <summary>
+            Indicate that the given assembly should not be used.
+            You can call this method multiple times.
+            </summary>
+      <param name="assembly">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.AllAssemblies.GetEnumerator">
+      <summary>
+            Returns an enumerator for looping over the assemblies to be loaded.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.Config.ConfigurationSource.IConfigurationSource">
+      <summary>
+            Abstraction of a source of configuration data.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Config.ConfigurationSource.IConfigurationSource.GetConfiguration``1">
+      <summary>
+            Returns configuration data based on the given type.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.Config.ConfigurationSource.DefaultConfigurationSource">
+      <summary>
+            A configuration source implementation on top of ConfigurationManager.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Configure">
+      <summary>
+            Central configuration entry point for NServiceBus.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Configure.CustomConfigurationSource(NServiceBus.Config.ConfigurationSource.IConfigurationSource)">
+      <summary>
+            Sets the current configuration source
+            </summary>
+      <param name="configurationSource">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Configure.#ctor">
+      <summary>
+            Protected constructor to enable creation only via the With method.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Configure.With">
+      <summary>
+            Creates a new configuration object scanning assemblies
+            in the regular runtime directory.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Configure.WithWeb">
+      <summary>
+            Configures NServiceBus to scan for assemblies 
+            in the relevant web directory instead of regular
+            runtime directory.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Configure.With(System.String)">
+      <summary>
+            Configures NServiceBus to scan for assemblies
+            in the given directory rather than the regular
+            runtime directory.
+            </summary>
+      <param name="probeDirectory">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Configure.With(System.Collections.Generic.IEnumerable{System.Reflection.Assembly})">
+      <summary>
+            Configures NServiceBus to use the types found in the given assemblies.
+            </summary>
+      <param name="assemblies">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Configure.With(System.Reflection.Assembly[])">
+      <summary>
+            Configures nServiceBus to scan the given assemblies only.
+            </summary>
+      <param name="assemblies">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Configure.With(System.Collections.Generic.IEnumerable{System.Type})">
+      <summary>
+            Configures nServiceBus to scan the given types.
+            </summary>
+      <param name="typesToScan">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Configure.RunCustomAction(System.Action)">
+      <summary>
+            Run a custom action at configuration time - useful for performing additional configuration not exposed by the fluent interface.
+            </summary>
+      <param name="action">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Configure.CreateBus">
+      <summary>
+            Provides an instance to a startable bus.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Configure.GetConfigSection``1">
+      <summary>
+            Returns the requested config section using the current configuration source
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Configure.GetAssembliesInDirectory(System.String,System.String[])">
+      <summary>
+            Load and return all assemblies in the given directory except the given ones to exclude
+            </summary>
+      <param name="path">
+      </param>
+      <param name="assembliesToSkip">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="P:NServiceBus.Configure.Instance">
+      <summary>
+            Provides static access to the configuration object.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Configure.Builder">
+      <summary>
+            Gets/sets the builder.
+            Setting the builder should only be done by NServiceBus framework code.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Configure.ConfigSource">
+      <summary>
+            Provides access to the configuration source.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Configure.ConfigurationSource">
+      <summary>
+            Gets the current configuration source
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Configure.Configurer">
+      <summary>
+            Gets/sets the object used to configure components.
+            This object should eventually reference the same container as the Builder.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Configure.TypesToScan">
+      <summary>
+            Returns types in assemblies found in the current directory.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Grid.MessageHandlers.ChangeNumberOfWorkerThreadsMessageHandler">
+      <summary>
+            Handles <see cref="T:NServiceBus.Grid.Messages.ChangeNumberOfWorkerThreadsMessage" />.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Grid.MessageHandlers.ChangeNumberOfWorkerThreadsMessageHandler.Handle(NServiceBus.Grid.Messages.ChangeNumberOfWorkerThreadsMessage)">
+      <summary>
+            If the target number of worker threads in the message is zero,
+            brings them down to one, and marks the endpoint as Disabled.
+            Otherwise, tells the transport to change the number of worker threads.
+            </summary>
+      <param name="message">
+      </param>
+    </member>
+    <member name="P:NServiceBus.Grid.MessageHandlers.ChangeNumberOfWorkerThreadsMessageHandler.UnicastBus">
+      <summary>
+            Used to stop sending ready messages to the distributor if one is configured.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Grid.MessageHandlers.ChangeNumberOfWorkerThreadsMessageHandler.Transport">
+      <summary>
+            This is kept separate from the bus because the distributor
+            will be using this class on its control bus to change the
+            number of worker threads on its data bus.
+            
+            For regular cases, the transport should be the same as is
+            configured for the bus.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Grid.MessageHandlers.GetNumberOfWorkerThreadsMessageHandler">
+      <summary>
+            Handles the GetNumberOfWorkerThreadsMessage.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Grid.MessageHandlers.GetNumberOfWorkerThreadsMessageHandler.Handle(NServiceBus.Grid.Messages.GetNumberOfWorkerThreadsMessage)">
+      <summary>
+            Handles GetNumberOfWorkerThreadsMessage replying with GotNumberOfWorkerThreadsMessage.
+            </summary>
+      <param name="message">
+      </param>
+    </member>
+    <member name="P:NServiceBus.Grid.MessageHandlers.GetNumberOfWorkerThreadsMessageHandler.Bus">
+      <summary>
+            The bus used for returning a response.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Grid.MessageHandlers.GetNumberOfWorkerThreadsMessageHandler.Transport">
+      <summary>
+            Reference to the local transport for getting the number of worker threads.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Grid.MessageHandlers.GridInterceptingMessageHandler">
+      <summary>
+            Intercepts all messages, not allowing any through if the endpoint
+            has had its number of worker threads reduced to zero.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Grid.MessageHandlers.GridInterceptingMessageHandler.Handle(NServiceBus.IMessage)">
+      <summary>
+            If Disabled, does not allow the message to be processed (unless it is a grid message).
+            Prevents grid messages from causing the bus to send ready messages to the distributor (if such is configured).
+            </summary>
+      <param name="message">
+      </param>
+    </member>
+    <member name="P:NServiceBus.Grid.MessageHandlers.GridInterceptingMessageHandler.Bus">
+      <summary>
+            The bus instructed to stop messages from being processed further. 
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Grid.MessageHandlers.GridInterceptingMessageHandler.UnicastBus">
+      <summary>
+            Used to prevent ready messages from being sent to the distributor
+            when grid messages are processed.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Grid.MessageHandlers.GridInterceptingMessageHandler.Transport">
+      <summary>
+            Used to abort handling messages when the endpoint has been disabled.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Grid.MessageHandlers.GridInterceptingMessageHandler.Disabled">
+      <summary>
+            Gets/sets that the number of worker threads has been reduced to zero.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Grid.MessageHandlers.GridInterceptingMessageHandler.DisabledChanged">
+      <summary>
+            Notifies when the Disabled state has changed.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Grid.Messages.ChangeNumberOfWorkerThreadsMessage">
+      <summary>
+            Message sent to request that the bus change the number of
+            worker threads handling messages. 
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Grid.Messages.ChangeNumberOfWorkerThreadsMessage.NumberOfWorkerThreads">
+      <summary>
+            Target number of worker threads.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Grid.Messages.GetNumberOfWorkerThreadsMessage">
+      <summary>
+            Request message sent to a bus to get
+            the number of worker threads. Response is a <see cref="T:NServiceBus.Grid.Messages.GotNumberOfWorkerThreadsMessage" />.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Grid.Messages.GotNumberOfWorkerThreadsMessage">
+      <summary>
+            Response message returned by the bus
+            as a result of a <see cref="T:NServiceBus.Grid.Messages.GetNumberOfWorkerThreadsMessage" />.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Grid.Messages.GotNumberOfWorkerThreadsMessage.NumberOfWorkerThreads">
+      <summary>
+            The number of worker threads running on the sending endpoint.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.Logging.Threshold">
+      <summary>
+            The minimal logging level above which all calls to the log will be written
+            </summary>
+    </member>
+    <member name="T:NServiceBus.SetLoggingLibrary">
+      <summary>
+            Class containing extension method to allow users to use Log4Net for logging
+            </summary>
+    </member>
+    <member name="M:NServiceBus.SetLoggingLibrary.Log4Net(NServiceBus.Configure)">
+      <summary>
+            Use Log4Net for logging with the Console Appender at the level of All.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.SetLoggingLibrary.Log4Net``1(NServiceBus.Configure,System.Action{``0})">
+      <summary>
+            Use Log4Net for logging with your own appender type, initializing it as necessary.
+            Will call 'ActivateOptions()' on the appender for you.
+            If you don't specify a threshold, will default to Level.Debug.
+            If you don't specify layout, uses this as a default: %d [%t] %-5p %c [%x] &lt;%X{auth}&gt; - %m%n
+            </summary>
+    </member>
+    <member name="M:NServiceBus.SetLoggingLibrary.Log4Net(NServiceBus.Configure,log4net.Appender.AppenderSkeleton)">
+      <summary>
+            Use Log4Net for logging passing in a pre-configured appender.
+            Will call 'ActivateOptions()' on the appender for you.
+            If you don't specify a threshold, will default to Level.Debug.
+            If you don't specify layout, uses this as a default: %d [%t] %-5p %c [%x] &lt;%X{auth}&gt; - %m%n
+            </summary>
+    </member>
+    <member name="M:NServiceBus.SetLoggingLibrary.Log4Net">
+      <summary>
+            Configure NServiceBus to use Log4Net without setting a specific appender.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.SetLoggingLibrary.Log4Net(System.Action)">
+      <summary>
+            Configure NServiceBus to use Log4Net and specify your own configuration.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.MessageInterfaces.IMessageMapper">
+      <summary>
+            Enables looking up interfaced mapped to generated concrete types
+            and vice versa.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.MessageInterfaces.IMessageMapper.Initialize(System.Collections.Generic.IEnumerable{System.Type})">
+      <summary>
+            Initializes the mapper with the given types to be scanned.
+            </summary>
+      <param name="types">
+      </param>
+    </member>
+    <member name="M:NServiceBus.MessageInterfaces.IMessageMapper.GetMappedTypeFor(System.Type)">
+      <summary>
+            If the given type is an interface, returns the generated concrete type.
+            If the given type is concerete, returns the interface it was generated from.
+            </summary>
+      <param name="t">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.MessageInterfaces.IMessageMapper.GetMappedTypeFor(System.String)">
+      <summary>
+            Looks up the type mapped for the given name.
+            </summary>
+      <param name="typeName">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper">
+      <summary>
+            Uses reflection to map between interfaces and their generated concrete implementations.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper.Initialize(System.Collections.Generic.IEnumerable{System.Type})">
+      <summary>
+            Scans the given types generating concrete classes for interfaces.
+            </summary>
+      <param name="types">
+      </param>
+    </member>
+    <member name="M:NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper.InitType(System.Type,System.Reflection.Emit.ModuleBuilder)">
+      <summary>
+            Generates a concrete implementation of the given type if it is an interface.
+            </summary>
+      <param name="t">
+      </param>
+      <param name="moduleBuilder">
+      </param>
+    </member>
+    <member name="M:NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper.GetNewTypeName(System.Type)">
+      <summary>
+            Generates a new full name for a type to be generated for the given type.
+            </summary>
+      <param name="t">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper.CreateTypeFrom(System.Type,System.Reflection.Emit.ModuleBuilder)">
+      <summary>
+            Generates the concrete implementation of the given type.
+            Only properties on the given type are generated in the concrete implementation.
+            </summary>
+      <param name="t">
+      </param>
+      <param name="moduleBuilder">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper.GetAllProperties(System.Type)">
+      <summary>
+            Returns all properties on the given type, going up the inheritance
+            hierarchy.
+            </summary>
+      <param name="t">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper.GetMappedTypeFor(System.Type)">
+      <summary>
+            If the given type is concrete, returns the interface it was generated to support.
+            If the given type is an interface, returns the concrete class generated to implement it.
+            </summary>
+      <param name="t">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper.GetMappedTypeFor(System.String)">
+      <summary>
+            Returns the type mapped to the given name.
+            </summary>
+      <param name="typeName">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper.CreateInstance``1(System.Action{``0})">
+      <summary>
+            Calls the generic CreateInstance and performs the given
+            action on the result.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <param name="action">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper.CreateInstance``1">
+      <summary>
+            Calls the non-generic CreateInstance and returns its result
+            cast to T.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper.CreateInstance(System.Type)">
+      <summary>
+            If the given type is an interface, finds its generated concrete
+            implementation, instantiates it, and returns the result.
+            </summary>
+      <param name="t">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.ObjectBuilder.Common.Config.ConfigureCommon">
+      <summary>
+            Utility configuration class for implementers of IContainer.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.Common.Config.ConfigureCommon.With(NServiceBus.Configure,NServiceBus.ObjectBuilder.Common.IContainer)">
+      <summary>
+            Sets the Builder property of the given Configure object to an instance of CommonObjectBuilder.
+            Then, the given builder object is inserted in the relevant place of the builder chain.
+            Finally, the given actions are performed on the instance of CommonObjectBuilder.
+            </summary>
+      <param name="config">
+      </param>
+      <param name="container">
+      </param>
+    </member>
+    <member name="T:NServiceBus.ObjectBuilder.Common.Config.ConfigureContainer">
+      <summary>
+             Extension methods to specify a custom container type and/or instance
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.Common.Config.ConfigureContainer.UsingContainer``1(NServiceBus.Configure)">
+      <summary>
+             Provide a custom IContainer type for use by NServiceBus
+            </summary>
+      <param name="configure">Configuration instance</param>
+      <typeparam name="T">IContainer type</typeparam>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.Common.Config.ConfigureContainer.UsingContainer``1(NServiceBus.Configure,``0)">
+      <summary>
+             Provide a custom IContainer instance for use by NServiceBus
+            </summary>
+      <param name="configure">Configuration instance</param>
+      <param name="container">IContainer instance</param>
+      <typeparam name="T">IContainer type</typeparam>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.SyncConfig">
+      <summary>
+            Class for holding extension methods to NServiceBus.Configure
+            </summary>
+    </member>
+    <member name="M:NServiceBus.SyncConfig.MarkConfigured">
+      <summary>
+            Notify that configuration of ConfigureCommon occurred.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.SyncConfig.Synchronization(NServiceBus.Configure)">
+      <summary>
+            Use this for multi-threaded rich clients. Specifies that message processing
+            will occur within a synchronization domain (make sure that you only have one).
+            </summary>
+      <param name="config">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="P:NServiceBus.SyncConfig.Synchronize">
+      <summary>
+            Indicates whether the synchronization has been requested.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.ObjectBuilder.Common.CommonObjectBuilder">
+      <summary>
+            Implementation of IBuilder, serving as a facade that container specific implementations
+            of IContainer should run behind.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.ObjectBuilder.Common.CommonObjectBuilder.Container">
+      <summary>
+            The container that will be used to create objects and configure components.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.ObjectBuilder.Common.CommonObjectBuilder.Synchronized">
+      <summary>
+            Used for multi-threaded rich clients to build and dispatch
+            in a synchronization domain.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.ObjectBuilder.Common.IContainer">
+      <summary>
+            Abstraction of a container.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.Common.IContainer.Build(System.Type)">
+      <summary>
+            Returns an instantiation of the given type.
+            </summary>
+      <param name="typeToBuild">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.Common.IContainer.BuildAll(System.Type)">
+      <summary>
+            Returns a list of objects instantiated because their type is compatible
+            with the given type.
+            </summary>
+      <param name="typeToBuild">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.Common.IContainer.Configure(System.Type,NServiceBus.ObjectBuilder.ComponentCallModelEnum)">
+      <summary>
+            Configures the call model of the given component type.
+            </summary>
+      <param name="component">
+      </param>
+      <param name="callModel">
+      </param>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.Common.IContainer.ConfigureProperty(System.Type,System.String,System.Object)">
+      <summary>
+            Sets the value to be configured for the given property of the 
+            given component type.
+            </summary>
+      <param name="component">
+      </param>
+      <param name="property">
+      </param>
+      <param name="value">
+      </param>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.Common.IContainer.RegisterSingleton(System.Type,System.Object)">
+      <summary>
+            Registers the given instance as the singleton that will be returned
+            for the given type.
+            </summary>
+      <param name="lookupType">
+      </param>
+      <param name="instance">
+      </param>
+    </member>
+    <member name="T:NServiceBus.ObjectBuilder.Common.SynchronizedInvoker">
+      <summary>
+            Invokes methods and actions within a synchronization domain.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.Common.SynchronizedInvoker.BuildAndDispatch(System.Type,System.Action{System.Object})">
+      <summary>
+            Uses the container to create the given type and then calls the given
+            action on the object created.
+            </summary>
+      <param name="typeToBuild">
+      </param>
+      <param name="action">
+      </param>
+    </member>
+    <member name="P:NServiceBus.ObjectBuilder.Common.SynchronizedInvoker.Container">
+      <summary>
+            The container used to instantiate components.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.ConfigureSpringBuilder">
+      <summary>
+            Contains extension methods to NServiceBus.Configure for configuring the Spring container.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ConfigureSpringBuilder.SpringBuilder(NServiceBus.Configure)">
+      <summary>
+            Obsolete - use <see cref="M:NServiceBus.ConfigureSpringBuilder.DefaultBuilder(NServiceBus.Configure)" /> if you don't care which container is used.
+            If you want to use the Spring Framework as your container, call <see cref="M:NServiceBus.ConfigureSpringBuilder.SpringFrameworkBuilder(NServiceBus.Configure)" />.
+            </summary>
+      <param name="config">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ConfigureSpringBuilder.DefaultBuilder(NServiceBus.Configure)">
+      <summary>
+            Uses the default container merged into NServiceBus.Core.dll.
+            In this version, the container is the Spring Framework.
+            </summary>
+      <param name="config">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ConfigureSpringBuilder.SpringFrameworkBuilder(NServiceBus.Configure)">
+      <summary>
+            Use the Spring Framework as the container.
+            </summary>
+      <param name="config">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.ObjectBuilder.Spring.SpringObjectBuilder">
+      <summary>
+            Implementation of IBuilderInternal using the Spring Framework container
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.Spring.SpringObjectBuilder.#ctor">
+      <summary>
+            Instantiates the builder using a new GenericApplicationContext.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ObjectBuilder.Spring.SpringObjectBuilder.#ctor(Spring.Context.Support.GenericApplicationContext)">
+      <summary>
+            Instantiates the builder using the given container.
+            </summary>
+      <param name="container">
+      </param>
+    </member>
+    <member name="T:NServiceBus.Sagas.Impl.Configure">
+      <summary>
+            Object that scans types and stores meta-data to be used for type lookups at runtime by sagas.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.Configure.With(NServiceBus.ObjectBuilder.IConfigureComponents,NServiceBus.ObjectBuilder.IBuilder)">
+      <summary>
+            Starts the configuration process for the saga infrastructure.
+            </summary>
+      <param name="configurer">
+      </param>
+      <param name="builder">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.Configure.SagasIn(System.Collections.Generic.IEnumerable{System.Type})">
+      <summary>
+            Scans for types relevant to the saga infrastructure.
+            These include implementers of <see cref="T:NServiceBus.Saga.ISaga" /> and <see cref="T:NServiceBus.Saga.IFindSagas`1" />.
+            </summary>
+      <param name="types">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.Configure.CreateAdditionalFindersAsNecessary">
+      <summary>
+            Creates an <see cref="T:NServiceBus.Sagas.Impl.NullSagaFinder`1" /> for each saga type that doesn't have a finder configured.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.Configure.GetSagaTypeToStartIfMessageNotFoundByFinder(NServiceBus.IMessage,NServiceBus.Saga.IFinder)">
+      <summary>
+            Gets the saga type to instantiate and invoke if an existing saga couldn't be found by
+            the given finder using the given message.
+            </summary>
+      <param name="message">
+      </param>
+      <param name="finder">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.Configure.GetSagaTypesForMessageType(System.Type)">
+      <summary>
+            Finds the types of sagas that can handle the given concrete message type.
+            </summary>
+      <param name="messageType">A concrete type for a message object</param>
+      <returns>The list of saga types.</returns>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.Configure.GetSagaTypeForSagaEntityType(System.Type)">
+      <summary>
+            Returns the saga type configured for the given entity type.
+            </summary>
+      <param name="sagaEntityType">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.Configure.GetSagaEntityTypeForSagaType(System.Type)">
+      <summary>
+            Returns the entity type configured for the given saga type.
+            </summary>
+      <param name="sagaType">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.Configure.IsMessageTypeHandledBySaga(System.Type)">
+      <summary>
+            Indicates if a saga has been configured to handle the given message type.
+            </summary>
+      <param name="messageType">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.Configure.GetFindByMethodForFinder(NServiceBus.Saga.IFinder,NServiceBus.IMessage)">
+      <summary>
+            Gets a reference to the generic "FindBy" method of the given finder
+            for the given message type using a hashtable lookup rather than reflection.
+            </summary>
+      <param name="finder">
+      </param>
+      <param name="message">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.Configure.GetFindersFor(NServiceBus.IMessage)">
+      <summary>
+            Returns a list of finder object capable of using the given message.
+            </summary>
+      <param name="m">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.Configure.GetSagaDataTypes">
+      <summary>
+            Returns the list of saga types configured.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.Configure.GetHandleMethodForSagaAndMessage(System.Object,NServiceBus.IMessage)">
+      <summary>
+            Gets a reference to the generic "Handle" method on the given saga
+            for the given message type using a hashtable lookup rather than reflection.
+            </summary>
+      <param name="saga">
+      </param>
+      <param name="message">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="P:NServiceBus.Sagas.Impl.Configure.SagasWereFound">
+      <summary>
+            Returns true if a saga type was found in the types passed in to <see cref="M:NServiceBus.Sagas.Impl.Configure.SagasIn(System.Collections.Generic.IEnumerable{System.Type})" />.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.ConfigureSagas">
+      <summary>
+            Contains extension methods to NServiceBus.Configure.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ConfigureSagas.Sagas(NServiceBus.Configure)">
+      <summary>
+            Configure this endpoint to support sagas.
+            </summary>
+      <param name="config">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.Sagas.Impl.ConfigureHowToFindSagaWithMessageDispatcher">
+      <summary>
+            Class used to bridge the dependency between Saga{T} in NServiceBus.dll and
+            the Configure class found in this project in NServiceBus.Core.dll.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Sagas.Impl.GuidCombGenerator">
+      <summary>
+            Generates <see cref="T:System.Guid" /> values 
+            using a strategy suggested Jimmy Nilsson's 
+            <a href="http://www.informit.com/articles/article.asp?p=25862">article</a>
+            on <a href="http://www.informit.com">informit.com</a>. 
+            </summary>
+      <remarks>
+        <p>
+            The <c>comb</c> algorithm is designed to make the use of GUIDs as Primary Keys, Foreign Keys, 
+            and Indexes nearly as efficient as ints.
+            </p>
+        <p>
+            This code was modifed based on Donald Mull's contributor to the
+            NHibernate source.
+            </p>
+      </remarks>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.GuidCombGenerator.Generate">
+      <summary>
+            Generate a new <see cref="T:System.Guid" /> using the comb algorithm.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Sagas.Impl.NullSagaFinder`1">
+      <summary>
+            Catch-all finder to return null - so that we can later check
+            for whether a new saga should be created.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.NullSagaFinder`1.FindBy(NServiceBus.IMessage)">
+      <summary>
+            Returns null.
+            </summary>
+      <param name="message">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.Sagas.Impl.PropertySagaFinder`2">
+      <summary>
+            Finds the given type of saga by looking it up based on the given property.
+            </summary>
+      <typeparam name="TSaga">
+      </typeparam>
+      <typeparam name="TMessage">
+      </typeparam>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.PropertySagaFinder`2.FindBy(`1)">
+      <summary>
+            Uses the saga persister to find the saga.
+            </summary>
+      <param name="message">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="P:NServiceBus.Sagas.Impl.PropertySagaFinder`2.SagaPersister">
+      <summary>
+            Injected persister
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Sagas.Impl.PropertySagaFinder`2.SagaProperty">
+      <summary>
+            Property of the saga that will be used for lookup.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Sagas.Impl.PropertySagaFinder`2.MessageProperty">
+      <summary>
+            Property of the message whose value will be used for the lookup.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Sagas.Impl.ReplyingToNullOriginatorDispatcher">
+      <summary>
+            Class used to bridge the dependency between Saga{T} in NServiceBus.dll and
+            which doesn't have access to Common.Logging and the level of logging
+            known in the Configure class found in this project in NServiceBus.Core.dll.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Sagas.Impl.SagaEntityFinder`1">
+      <summary>
+            Single-call object used to find saga entities using saga ids from a saga persister.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.SagaEntityFinder`1.FindBy(NServiceBus.Saga.ISagaMessage)">
+      <summary>
+            Finds the saga entity type T using the saga Id in the given message.
+            </summary>
+      <param name="message">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="P:NServiceBus.Sagas.Impl.SagaEntityFinder`1.Persister">
+      <summary>
+            Saga persister used to find sagas.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Sagas.Impl.SagaMessageHandler">
+      <summary>
+            A message handler central to the saga infrastructure.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Sagas.Impl.SagaMessageHandler.logger">
+      <summary>
+            Object used to log information.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.SagaMessageHandler.Handle(NServiceBus.IMessage)">
+      <summary>
+            Handles a message.
+            </summary>
+      <param name="message">The message to handle.</param>
+      <remarks>
+            If the message received needs to start a new saga, then a new
+            saga instance will be created and will be saved using the <see cref="T:NServiceBus.Saga.ISagaPersister" />
+            implementation provided in the configuration.  Any other message implementing 
+            <see cref="T:NServiceBus.Saga.ISagaMessage" /> will cause the existing saga instance with which it is
+            associated to continue.</remarks>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.SagaMessageHandler.NeedToHandle(NServiceBus.IMessage)">
+      <summary>
+            Decides whether the given message should be handled by the saga infrastructure
+            </summary>
+      <param name="message">The message being processed</param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.SagaMessageHandler.GenerateSagaId">
+      <summary>
+            Generates a new id for a saga.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.SagaMessageHandler.UseFinderToFindSaga(NServiceBus.Saga.IFinder,NServiceBus.IMessage)">
+      <summary>
+            Asks the given finder to find the saga entity using the given message.
+            </summary>
+      <param name="finder">
+      </param>
+      <param name="message">
+      </param>
+      <returns>The saga entity if found, otherwise null.</returns>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.SagaMessageHandler.HaveSagaHandleMessage(NServiceBus.Saga.ISaga,NServiceBus.IMessage,System.Boolean)">
+      <summary>
+            Dispatches the message to the saga and, based on the saga's state
+            persists it or notifies of its completion to interested parties.
+            </summary>
+      <param name="saga">
+      </param>
+      <param name="message">
+      </param>
+      <param name="sagaIsPersistent">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.SagaMessageHandler.NotifyTimeoutManagerThatSagaHasCompleted(NServiceBus.Saga.ISaga)">
+      <summary>
+            Notifies the timeout manager of the saga's completion by sending a timeout message.
+            </summary>
+      <param name="saga">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.SagaMessageHandler.LogIfSagaIsFinished(NServiceBus.Saga.ISaga)">
+      <summary>
+            Logs that a saga has completed.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Sagas.Impl.SagaMessageHandler.CallHandleMethodOnSaga(System.Object,NServiceBus.IMessage)">
+      <summary>
+            Invokes the handler method on the saga for the message.
+            </summary>
+      <param name="saga">The saga on which to call the handle method.</param>
+      <param name="message">The message to pass to the handle method.</param>
+    </member>
+    <member name="P:NServiceBus.Sagas.Impl.SagaMessageHandler.Bus">
+      <summary>
+            Used to notify timeout manager of sagas that have completed.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Sagas.Impl.SagaMessageHandler.Builder">
+      <summary>
+            Gets/sets the builder that will be used for instantiating sagas.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Sagas.Impl.SagaMessageHandler.Persister">
+      <summary>
+            Gets/sets the object used to persist and retrieve sagas.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.ConfigureBinarySerializer">
+      <summary>
+            Contains extension methods to NServiceBus.Configure.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ConfigureBinarySerializer.BinarySerializer(NServiceBus.Configure)">
+      <summary>
+            Use binary serialization.
+            Note that this does not support interface-based messages.
+            </summary>
+      <param name="config">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.Serializers.Binary.MessageSerializer">
+      <summary>
+            Binary implementation of the message serializer.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Serializers.Binary.MessageSerializer.Serialize(NServiceBus.IMessage[],System.IO.Stream)">
+      <summary>
+            Serializes the given messages to the given stream.
+            </summary>
+      <param name="messages">
+      </param>
+      <param name="stream">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Serializers.Binary.MessageSerializer.Deserialize(System.IO.Stream)">
+      <summary>
+            Deserializes the given stream returning an array of messages.
+            </summary>
+      <param name="stream">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.Serializers.Binary.SimpleMessageMapper">
+      <summary>
+            Simple implementation of message mapper for binary serialization.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.ConfigureXmlSerializer">
+      <summary>
+            Contains extension methods to NServiceBus.Configure.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ConfigureXmlSerializer.XmlSerializer(NServiceBus.Configure)">
+      <summary>
+            Use XML serialization that supports interface-based messages.
+            </summary>
+      <param name="config">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.ConfigureXmlSerializer.XmlSerializer(NServiceBus.Configure,System.String)">
+      <summary>
+            Use XML serialization that supports interface-based messages.
+            Optionally set the namespace to be used in the XML.
+            </summary>
+      <param name="config">
+      </param>
+      <param name="nameSpace">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.Serializers.XML.MessageSerializer">
+      <summary>
+            Implementation of the message serializer over XML supporting interface-based messages.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Serializers.XML.MessageSerializer.namespacesToPrefix">
+      <summary>
+            Used for serialization
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Serializers.XML.MessageSerializer.prefixesToNamespaces">
+      <summary>
+            Used for deserialization
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Serializers.XML.MessageSerializer.InitType(System.Type)">
+      <summary>
+            Scans the given type storing maps to fields and properties to save on reflection at runtime.
+            </summary>
+      <param name="t">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Serializers.XML.MessageSerializer.GetAllPropertiesForType(System.Type,System.Boolean)">
+      <summary>
+            Gets a PropertyInfo for each property of the given type.
+            </summary>
+      <param name="t">
+      </param>
+      <param name="isKeyValuePair">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Serializers.XML.MessageSerializer.GetAllFieldsForType(System.Type)">
+      <summary>
+            Gets a FieldInfo for each field in the given type.
+            </summary>
+      <param name="t">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Serializers.XML.MessageSerializer.Deserialize(System.IO.Stream)">
+      <summary>
+            Deserializes the given stream to an array of messages which are returned.
+            </summary>
+      <param name="stream">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Serializers.XML.MessageSerializer.Serialize(NServiceBus.IMessage[],System.IO.Stream)">
+      <summary>
+            Serializes the given messages to the given stream.
+            </summary>
+      <param name="messages">
+      </param>
+      <param name="stream">
+      </param>
+    </member>
+    <member name="P:NServiceBus.Serializers.XML.MessageSerializer.MessageMapper">
+      <summary>
+            The message mapper used to translate between types.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Serializers.XML.MessageSerializer.EncryptionService">
+      <summary>
+            The encryption service used to encrypt and decrypt WireEncryptedStrings.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Serializers.XML.MessageSerializer.Namespace">
+      <summary>
+            The namespace to place in outgoing XML.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Serializers.XML.MessageSerializer.MessageTypes">
+      <summary>
+            Gets/sets message types to be serialized
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Config.ConfigUnicastBus">
+      <summary>
+            Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.Config.ConfigUnicastBus.assembliesToEndpoints">
+      <summary>
+            A map of which message types (belonging to the given assemblies) are owned 
+            by which endpoint.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.Config.ConfigUnicastBus.busConfig">
+      <summary>
+            Used to configure the bus.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Config.ConfigUnicastBus.Configure(NServiceBus.Configure)">
+      <summary>
+            Wrap the given configure object storing its builder and configurer.
+            </summary>
+      <param name="config">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.Config.ConfigUnicastBus.ImpersonateSender(System.Boolean)">
+      <summary>
+            Instructs the bus to run the processing of messages being handled
+            under the permissions of the sender of the message.
+            </summary>
+      <param name="value">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Config.ConfigUnicastBus.SetMessageHandlersFromAssembliesInOrder(System.Reflection.Assembly[])">
+      <summary>
+            [Deprecated] Use LoadMessageHandlers instead.
+            </summary>
+      <param name="assemblies">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Config.ConfigUnicastBus.LoadMessageHandlers">
+      <summary>
+            Loads all message handler assemblies in the runtime directory.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Config.ConfigUnicastBus.LoadMessageHandlers``1">
+      <summary>
+            Loads all message handler assemblies in the runtime directory
+            and specifies that handlers in the given assembly should run
+            before all others.
+            
+            Use First{T} to indicate the type to load from.
+            </summary>
+      <typeparam name="TFirst">
+      </typeparam>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Config.ConfigUnicastBus.LoadMessageHandlers``1(NServiceBus.First{``0})">
+      <summary>
+            Loads all message handler assemblies in the runtime directory
+            and specifies that the handlers in the given 'order' are to 
+            run before all others and in the order specified.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <param name="order">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Config.ConfigUnicastBus.ConfigureMessageHandlersIn(System.Collections.Generic.IEnumerable{System.Type})">
+      <summary>
+            Scans the given types for types that are message handlers
+            then uses the Configurer to configure them into the container as single call components,
+            finally passing them to the bus as its MessageHandlerTypes.
+            </summary>
+      <param name="types">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Config.ConfigUnicastBus.PropogateReturnAddressOnSend(System.Boolean)">
+      <summary>
+            Set this if you want this endpoint to serve as something of a proxy;
+            recipients of messages sent by this endpoint will see the address
+            of endpoints that sent the incoming messages.
+            </summary>
+      <param name="value">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Config.ConfigUnicastBus.ForwardReceivedMessagesTo(System.String)">
+      <summary>
+            Forwards all received messages to a given endpoint (queue@machine).
+            This is useful as an auditing/debugging mechanism.
+            </summary>
+      <param name="value">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Config.ConfigUnicastBus.DoNotAutoSubscribe">
+      <summary>
+            Instructs the bus not to automatically subscribe to messages that
+            it has handlers for (given those messages belong to a different endpoint).
+            
+            This is needed only if you require fine-grained control over the subscribe/unsubscribe process.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Config.ConfigUnicastBus.IsMessageHandler(System.Type)">
+      <summary>
+            Returns true if the given type is a message handler.
+            </summary>
+      <param name="t">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Config.ConfigUnicastBus.GetMessageTypeFromMessageHandler(System.Type)">
+      <summary>
+            Returns the message type handled by the given message handler type.
+            </summary>
+      <param name="t">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.ConfigureUnicastBus">
+      <summary>
+            Contains extension methods to NServiceBus.Configure.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ConfigureUnicastBus.UnicastBus(NServiceBus.Configure)">
+      <summary>
+            Use unicast messaging (your best option on nServiceBus right now).
+            </summary>
+      <param name="config">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.First`1">
+      <summary>
+            Used by ConfigUnicastBus to indicate the order in which
+            handler types are to run.
+            
+            Not thread safe.
+            </summary>
+      <typeparam name="T">The type which will run first.</typeparam>
+    </member>
+    <member name="M:NServiceBus.First`1.Then``1">
+      <summary>
+            Specifies the type which will run next.
+            </summary>
+      <typeparam name="K">
+      </typeparam>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.First`1.AndThen``1">
+      <summary>
+            Specifies the type which will run next
+            </summary>
+      <typeparam name="K">
+      </typeparam>
+      <returns>
+      </returns>
+    </member>
+    <member name="P:NServiceBus.First`1.Types">
+      <summary>
+            Returns the ordered list of types specified.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Config.MessageEndpointMapping">
+      <summary>
+            A configuration element representing which message types map to which endpoint.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.MessageEndpointMapping.Messages">
+      <summary>
+            A string defining the message assembly, or single message type.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.MessageEndpointMapping.Endpoint">
+      <summary>
+            The endpoint named according to "queue@machine".
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Config.MessageEndpointMappingCollection">
+      <summary>
+            A configuration element collection of MessageEndpointMappings.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Config.MessageEndpointMappingCollection.CreateNewElement">
+      <summary>
+            Creates a new MessageEndpointMapping.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Config.MessageEndpointMappingCollection.CreateNewElement(System.String)">
+      <summary>
+            Creates a new MessageEndpointMapping, setting its Message property to the given name.
+            </summary>
+      <param name="elementName">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Config.MessageEndpointMappingCollection.GetElementKey(System.Configuration.ConfigurationElement)">
+      <summary>
+            Returns the Messages property of the given MessageEndpointMapping element.
+            </summary>
+      <param name="element">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Config.MessageEndpointMappingCollection.IndexOf(NServiceBus.Config.MessageEndpointMapping)">
+      <summary>
+            Calls BaseIndexOf on the given mapping.
+            </summary>
+      <param name="mapping">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Config.MessageEndpointMappingCollection.Add(NServiceBus.Config.MessageEndpointMapping)">
+      <summary>
+            Calls BaseAdd.
+            </summary>
+      <param name="mapping">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Config.MessageEndpointMappingCollection.BaseAdd(System.Configuration.ConfigurationElement)">
+      <summary>
+            Calls BaseAdd with true as the additional parameter.
+            </summary>
+      <param name="element">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Config.MessageEndpointMappingCollection.Remove(NServiceBus.Config.MessageEndpointMapping)">
+      <summary>
+            If the mapping exists, calls BaseRemove on it.
+            </summary>
+      <param name="mapping">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Config.MessageEndpointMappingCollection.RemoveAt(System.Int32)">
+      <summary>
+            Calls BaseRemoveAt.
+            </summary>
+      <param name="index">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Config.MessageEndpointMappingCollection.Remove(System.String)">
+      <summary>
+            Calls BaseRemove.
+            </summary>
+      <param name="name">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Config.MessageEndpointMappingCollection.Clear">
+      <summary>
+            Calls BaseClear.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.MessageEndpointMappingCollection.CollectionType">
+      <summary>
+            Returns AddRemoveClearMap.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.MessageEndpointMappingCollection.AddElementName">
+      <summary>
+            Calls the base AddElementName.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.MessageEndpointMappingCollection.ClearElementName">
+      <summary>
+            Calls the base ClearElementName.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.MessageEndpointMappingCollection.RemoveElementName">
+      <summary>
+            Returns the base RemoveElementName.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.MessageEndpointMappingCollection.Count">
+      <summary>
+            Returns the base Count.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.MessageEndpointMappingCollection.Item(System.Int32)">
+      <summary>
+            Gets/sets the MessageEndpointMapping at the given index.
+            </summary>
+      <param name="index">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="P:NServiceBus.Config.MessageEndpointMappingCollection.Item(System.String)">
+      <summary>
+            Gets the MessageEndpointMapping for the given name.
+            </summary>
+      <param name="Name">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.Config.UnicastBusConfig">
+      <summary>
+            A configuration section for UnicastBus specific settings.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.UnicastBusConfig.DistributorControlAddress">
+      <summary>
+            Gets/sets the address for sending control messages to the distributor.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.UnicastBusConfig.DistributorDataAddress">
+      <summary>
+            Gets/sets the distributor's data address - used as the return address of messages sent by this endpoint.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.UnicastBusConfig.ForwardReceivedMessagesTo">
+      <summary>
+            Gets/sets the address to which messages received will be forwarded.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.UnicastBusConfig.MessageEndpointMappings">
+      <summary>
+            Contains the mappings from message types (or groups of them) to endpoints.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.BusAsyncResult">
+      <summary>
+            Implementation of IAsyncResult returned when registering a callback.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.BusAsyncResult.#ctor(System.AsyncCallback,System.Object)">
+      <summary>
+            Creates a new object storing the given callback and state.
+            </summary>
+      <param name="callback">
+      </param>
+      <param name="state">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.BusAsyncResult.Complete(System.Int32,NServiceBus.IMessage[])">
+      <summary>
+            Stores the given error code and messages, 
+            releases any blocked threads,
+            and invokes the previously given callback.
+            </summary>
+      <param name="errorCode">
+      </param>
+      <param name="messages">
+      </param>
+    </member>
+    <member name="P:NServiceBus.Unicast.BusAsyncResult.AsyncState">
+      <summary>
+            Returns a completion result containing the error code, messages, and state.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.BusAsyncResult.AsyncWaitHandle">
+      <summary>
+            Returns a handle suitable for blocking threads.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.BusAsyncResult.CompletedSynchronously">
+      <summary>
+            Returns false.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.BusAsyncResult.IsCompleted">
+      <summary>
+            Returns if the operation has completed.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Callback">
+      <summary>
+            Implementation of the ICallback interface for the unicast bus/
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Callback.#ctor(System.String)">
+      <summary>
+            Creates a new instance of the callback object storing the given message id.
+            </summary>
+      <param name="messageId">
+      </param>
+    </member>
+    <member name="P:NServiceBus.Unicast.Callback.MessageId">
+      <summary>
+            Returns the message id this object was constructed with.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.Callback.Registered">
+      <summary>
+            Event raised when the Register method is called.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.BusAsyncResultEventArgs">
+      <summary>
+            Argument passed in the Registered event of the Callback object.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.BusAsyncResultEventArgs.Result">
+      <summary>
+            Gets/sets the IAsyncResult.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.BusAsyncResultEventArgs.MessageId">
+      <summary>
+            Gets/sets the message id.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.HeaderAdapter">
+      <summary>
+            Serves as a go-between from an IDictionary{string, string} 
+            used by application developers and List{HeaderInfo} used
+            by the infrastructure.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.HeaderAdapter.#ctor(System.Collections.Generic.List{NServiceBus.Unicast.Transport.HeaderInfo})">
+      <summary>
+            Creates a new instance storing the given headers.
+            </summary>
+      <param name="headers">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.HeaderAdapter.From(System.Collections.Generic.IDictionary{System.String,System.String})">
+      <summary>
+            Returns a strongly type list of HeaderInfo from the given dictionary.
+            </summary>
+      <param name="source">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.HeaderAdapter.Add(System.String,System.String)">
+      <summary>
+            Adds a new key,value pair.
+            </summary>
+      <param name="key">
+      </param>
+      <param name="value">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.HeaderAdapter.ContainsKey(System.String)">
+      <summary>
+            Returns true of the key was previously added,
+            otherwise false.
+            </summary>
+      <param name="key">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.HeaderAdapter.Remove(System.String)">
+      <summary>
+            Removes the entry under the given key returning true if found,
+            otherwise false.
+            </summary>
+      <param name="key">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.HeaderAdapter.TryGetValue(System.String,System.String@)">
+      <summary>
+            If the key exists in the collection, the given value is put in the out parameter.
+            </summary>
+      <param name="key">
+      </param>
+      <param name="value">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.HeaderAdapter.Add(System.Collections.Generic.KeyValuePair{System.String,System.String})">
+      <summary>
+            Adds the key value pair.
+            </summary>
+      <param name="item">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.HeaderAdapter.Clear">
+      <summary>
+            Clears all headers.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.HeaderAdapter.Contains(System.Collections.Generic.KeyValuePair{System.String,System.String})">
+      <summary>
+            Returns a Contains on the key of the given item.
+            </summary>
+      <param name="item">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.HeaderAdapter.CopyTo(System.Collections.Generic.KeyValuePair{System.String,System.String}[],System.Int32)">
+      <summary>
+            Not implemented.
+            </summary>
+      <param name="array">
+      </param>
+      <param name="arrayIndex">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.HeaderAdapter.Remove(System.Collections.Generic.KeyValuePair{System.String,System.String})">
+      <summary>
+            Calls Remove on the key of the given item.
+            </summary>
+      <param name="item">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.HeaderAdapter.GetEnumerator">
+      <summary>
+            Gets a strongly typed enumerator for iterating over the collection.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="P:NServiceBus.Unicast.HeaderAdapter.Keys">
+      <summary>
+            Returns the collection of keys.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.HeaderAdapter.Values">
+      <summary>
+            Returns the collection of values.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.HeaderAdapter.Item(System.String)">
+      <summary>
+            Gets the value for the given key, or null if the key
+            could not be found.
+            
+            Sets the value for the given key.
+            </summary>
+      <param name="key">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="P:NServiceBus.Unicast.HeaderAdapter.Count">
+      <summary>
+            Gets the number of elements actually contained.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.HeaderAdapter.IsReadOnly">
+      <summary>
+            Returns false.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.IUnicastBus">
+      <summary>
+            Extension of the IBus interface for working with a distributor.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.IUnicastBus.StopSendingReadyMessages">
+      <summary>
+            Instructs the bus to stop sending <see cref="T:NServiceBus.Messages.ReadyMessage" />s
+            when it has a distributor configured.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.IUnicastBus.ContinueSendingReadyMessages">
+      <summary>
+            Instructs the bus to continue sending <see cref="T:NServiceBus.Messages.ReadyMessage" />s
+            when it has a distributor configured.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.IUnicastBus.SkipSendingReadyMessageOnce">
+      <summary>
+            Instructs the bus to not send a <see cref="T:NServiceBus.Messages.ReadyMessage" />
+            at the end of processing the current message on the specific thread
+            on which it was called.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.IUnicastBus.NoSubscribersForMessage">
+      <summary>
+            Event raised by the Publish method when no subscribers are
+            registered for the message being published.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.IUnicastBus.ClientSubscribed">
+      <summary>
+            Event raised when a client has been subscribed to a message type.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.MessageContext">
+      <summary>
+            Implementation of IMessageContext
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.MessageContext.#ctor(NServiceBus.Unicast.Transport.TransportMessage)">
+      <summary>
+            Initializes message context from the transport message.
+            </summary>
+      <param name="transportMessage">
+      </param>
+    </member>
+    <member name="T:NServiceBus.Unicast.MessageEventArgs">
+      <summary>
+            Data containing a message for raising in events.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.MessageEventArgs.#ctor(NServiceBus.IMessage)">
+      <summary>
+            Instantiates a new object containing the given message.
+            </summary>
+      <param name="msg">
+      </param>
+    </member>
+    <member name="P:NServiceBus.Unicast.MessageEventArgs.Message">
+      <summary>
+            The message.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.SubscriptionEventArgs">
+      <summary>
+            Contains which client subscribed to which message
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.SubscriptionEventArgs.SubscriberAddress">
+      <summary>
+            The address of the subscriber.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.SubscriptionEventArgs.MessageType">
+      <summary>
+            The type of message the client subscribed to.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.SubscriptionsManager">
+      <summary>
+            Manages subscriptions and predicates for messages published by other endpoints
+            and subscribed to by the local bus.
+            </summary>
+      <remarks>
+            Thread safe.
+            </remarks>
+    </member>
+    <member name="M:NServiceBus.Unicast.SubscriptionsManager.GetConditionsForMessage(NServiceBus.IMessage)">
+      <summary>
+            Gets the list of conditions associated with a message.
+            </summary>
+      <param name="message">The message to get conditions for.</param>
+      <returns>A list of conditions that are associated with type of message provided.</returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.SubscriptionsManager.AddConditionForSubscriptionToMessageType(System.Type,System.Predicate{NServiceBus.IMessage})">
+      <summary>
+            Adds a condition to a message type.
+            </summary>
+      <param name="messageType">The message type to add a condition to.</param>
+      <param name="condition">The condition to add.</param>
+      <remarks>
+            All conditions added to a message type must be met if the messages of that type 
+            are to be published to a subscriber.</remarks>
+    </member>
+    <member name="T:NServiceBus.Unicast.UnicastBus">
+      <summary>
+            A unicast implementation of <see cref="T:NServiceBus.IBus" /> for NServiceBus.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.UnicastBus.MessageReceivedDelegate">
+      <summary>
+            A delegate for a method that will handle the <see cref="E:NServiceBus.Unicast.UnicastBus.MessageReceived" />
+            event.
+            </summary>
+      <param name="message">The message received.</param>
+    </member>
+    <member name="F:NServiceBus.Unicast.UnicastBus.SubscriptionMessageType">
+      <summary>
+            Header entry key for the given message type that is being subscribed to, when message intent is subscribe or unsubscribe.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.UnicastBus.EnclosedMessageTypes">
+      <summary>
+            Header entry key indicating the types of messages contained.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.UnicastBus.transport">
+      <summary>
+            A reference to the transport.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.UnicastBus._handleCurrentMessageLaterWasCalled">
+      <summary>
+            ThreadStatic variable indicating if the current message was already
+            marked to be handled later so we don't do this more than once.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.UnicastBus.subscriptionsManager">
+      <summary>
+            Gets/sets the subscription manager to use for the bus.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.UnicastBus.subscriptionStorage">
+      <summary>
+            Gets/sets the subscription storage.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.UnicastBus.modules">
+      <summary>
+            The list of message modules.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.UnicastBus.messageTypeToDestinationLookup">
+      <remarks>
+            Accessed by multiple threads - needs appropriate locking
+            </remarks>
+    </member>
+    <member name="F:NServiceBus.Unicast.UnicastBus._messageBeingHandled">
+      <remarks>
+            ThreadStatic
+            </remarks>
+    </member>
+    <member name="F:NServiceBus.Unicast.UnicastBus.canSendReadyMessages">
+      <summary>
+            Accessed by multiple threads.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.UnicastBus._skipSendingReadyMessageOnce">
+      <summary>
+            ThreadStatic
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.StopSendingReadyMessages">
+      <summary>
+            Stops sending ready messages to the distributor, if one is configured.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.ContinueSendingReadyMessages">
+      <summary>
+            Continues sending ready messages to the distributor, if one is configured.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.SkipSendingReadyMessageOnce">
+      <summary>
+            Skips sending a ready message to the distributor once.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.CreateInstance``1">
+      <summary>
+            Creates an instance of the specified type.
+            Used primarily for instantiating interface-based messages.
+            </summary>
+      <typeparam name="T">The type to instantiate.</typeparam>
+      <returns>An instance of the specified type.</returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.CreateInstance``1(System.Action{``0})">
+      <summary>
+            Creates an instance of the specified type.
+            Used primarily for instantiating interface-based messages.
+            </summary>
+      <typeparam name="T">The type to instantiate.</typeparam>
+      <param name="action">An action to perform on the result</param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.CreateInstance(System.Type)">
+      <summary>
+            Creates an instance of the specified type.
+            Used primarily for instantiating interface-based messages.
+            </summary>
+      <param name="messageType">The type to instantiate.</param>
+      <returns>An instance of the specified type.</returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.Publish``1(System.Action{``0})">
+      <summary>
+            Creates an instance of the requested message type (T), 
+            performing the given action on the created message,
+            and then publishing it.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <param name="messageConstructor">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.Publish``1(``0[])">
+      <summary>
+            Publishes the messages to all subscribers of the first message's type.
+            </summary>
+      <param name="messages">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.Subscribe``1">
+      <summary>
+            Subscribes to the given type - T.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.Subscribe(System.Type)">
+      <summary>
+            Subcribes to recieve published messages of the specified type.
+            </summary>
+      <param name="messageType">The type of message to subscribe to.</param>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.Subscribe``1(System.Predicate{``0})">
+      <summary>
+            Subscribes to the given type T, registering a condition that all received
+            messages of that type should comply with, otherwise discarding them.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <param name="condition">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.Subscribe(System.Type,System.Predicate{NServiceBus.IMessage})">
+      <summary>
+            Subscribes to receive published messages of the specified type if
+            they meet the provided condition.
+            </summary>
+      <param name="messageType">The type of message to subscribe to.</param>
+      <param name="condition">The condition under which to receive the message.</param>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.Unsubscribe``1">
+      <summary>
+            Unsubscribes from the given type of message - T.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.Unsubscribe(System.Type)">
+      <summary>
+            Unsubscribes from receiving published messages of the specified type.
+            </summary>
+      <param name="messageType">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.SendLocal(NServiceBus.IMessage[])">
+      <summary>
+            Sends the list of messages back to the current bus.
+            </summary>
+      <param name="messages">The messages to send.</param>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.SerializeEnclosedMessageTypes(NServiceBus.IMessage[])">
+      <summary>
+            Takes the given message types and serializes them for inclusion in the EnclosedMessageTypes header.
+            </summary>
+      <param name="messages">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.DeserializeEnclosedMessageTypes(System.String)">
+      <summary>
+            Takes the serialized form of EnclosedMessageTypes and returns a list of string types.
+            </summary>
+      <param name="serialized">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.SendReadyMessage(System.Boolean)">
+      <summary>
+            If this bus is configured to feed off of a distributor,
+            it will send a <see cref="T:NServiceBus.Messages.ReadyMessage" /> to its control address.
+            </summary>
+      <param name="startup">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.Dispose">
+      <summary>
+            Tells the transport to dispose.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.HandleMessage(NServiceBus.Unicast.Transport.TransportMessage)">
+      <summary>
+            Handles a received message.
+            </summary>
+      <param name="m">The received message.</param>
+      <remarks>
+            run by multiple threads so must be thread safe
+            public for testing
+            </remarks>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.DispatchMessageToHandlersBasedOnType(NServiceBus.IMessage,System.Type)">
+      <summary>
+            Finds the message handlers associated with the message type and dispatches
+            the message to the found handlers.
+            </summary>
+      <param name="toHandle">The message to dispatch to the handlers.</param>
+      <param name="messageType">The message type by which to locate the correct handlers.</param>
+      <returns>
+      </returns>
+      <remarks>
+            If during the dispatch, a message handler calls the DoNotContinueDispatchingCurrentMessageToHandlers method,
+            this prevents the message from being further dispatched.
+            This includes generic message handlers (of IMessage), and handlers for the specific messageType.
+            </remarks>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.GetInnermostException(System.Exception)">
+      <summary>
+            Gets the inner most exception from an exception stack.
+            </summary>
+      <param name="e">The exception to get the inner most exception for.</param>
+      <returns>The innermost exception.</returns>
+      <remarks>
+            If the exception has no inner exceptions the provided exception will be returned.
+            </remarks>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.HandleCorellatedMessage(NServiceBus.Unicast.Transport.TransportMessage)">
+      <summary>
+            If the message contains a correlationId, attempts to
+            invoke callbacks for that Id.
+            </summary>
+      <param name="msg">The message to evaluate.</param>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.TransportMessageReceived(System.Object,NServiceBus.Unicast.Transport.TransportMessageReceivedEventArgs)">
+      <summary>
+            Handles the <see cref="E:NServiceBus.Unicast.Transport.ITransport.TransportMessageReceived" /> event from the <see cref="T:NServiceBus.Unicast.Transport.ITransport" /> used
+            for the bus.
+            </summary>
+      <param name="sender">The sender of the event.</param>
+      <param name="e">The arguments for the event.</param>
+      <remarks>
+            When the transport passes up the <see cref="T:NServiceBus.Unicast.Transport.TransportMessage" /> its received,
+            the bus checks for initializiation, 
+            sets the message as that which is currently being handled for the current thread
+            and, depending on <see cref="P:NServiceBus.Unicast.UnicastBus.DisableMessageHandling" />, attempts to handle the message.
+            </remarks>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.HandledSubscriptionMessage(NServiceBus.Unicast.Transport.TransportMessage,NServiceBus.Unicast.Subscriptions.ISubscriptionStorage,NServiceBus.IAuthorizeSubscriptions)">
+      <summary>
+            Handles subscribe and unsubscribe requests managing the given subscription storage.
+            Returns true if the message was a subscription message.
+            </summary>
+      <param name="msg">
+      </param>
+      <param name="subscriptionStorage">
+      </param>
+      <param name="subscriptionAuthorizer">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.ConfigureMessageOwners(System.Collections.IDictionary)">
+      <summary>
+            Sets up known types needed for XML serialization as well as
+            to which address to send which message.
+            </summary>
+      <param name="owners">A dictionary of message_type, address pairs.</param>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.ForwardMessageIfNecessary(NServiceBus.Unicast.Transport.TransportMessage)">
+      <summary>
+            Sends the Msg to the address found in the field <see cref="P:NServiceBus.Unicast.UnicastBus.ForwardReceivedMessagesTo" />
+            if it isn't null.
+            </summary>
+      <param name="m">The message to forward</param>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.RegisterMessageType(System.Type,System.String,System.Boolean)">
+      <summary>
+            Registers a message type to a destination.
+            </summary>
+      <param name="messageType">A message type implementing <see cref="T:NServiceBus.IMessage" />.</param>
+      <param name="destination">The address of the destination the message type is registered to.</param>
+      <param name="configuredByAssembly">
+            Indicates whether or not this registration call is related to a type configured from an
+            assembly.
+            </param>
+      <remarks>
+            Since the same message type may be configured specifically to one address
+            and via its assembly to a different address, the configuredByAssembly
+            parameter dictates that the specific message type data is to be used.
+            </remarks>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.MustNotOverrideExistingConfiguration(System.Type,System.Boolean)">
+      <summary>
+            Checks whether or not the existing configuration can be overridden for a message type.
+            </summary>
+      <param name="messageType">The type of message to check the configuration for.</param>
+      <param name="configuredByAssembly">
+            Indicates whether or not this check is related to a type configured from an
+            assembly.
+            </param>
+      <returns>true if it is acceptable to override the configuration, otherwise false.</returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.GetTransportMessageFor(NServiceBus.IMessage[])">
+      <summary>
+            Wraps the provided messages in an NServiceBus envelope, does not include destination.
+            </summary>
+      <param name="messages">The messages to wrap.</param>
+      <returns>The envelope containing the messages.</returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.IfTypeIsMessageHandlerThenLoad(System.Type)">
+      <summary>
+            Evaluates a type and loads it if it implements IMessageHander{T}.
+            </summary>
+      <param name="t">The type to evaluate.</param>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.GetMessageTypesIfIsMessageHandler(System.Type)">
+      <summary>
+            If the type is a message handler, returns all the message types that it handles
+            </summary>
+      <param name="type">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.GetHandlerTypes(System.Type)">
+      <summary>
+            Gets a list of handler types associated with a message type.
+            </summary>
+      <param name="messageType">The type of message to get the handlers for.</param>
+      <returns>The list of handler types associated with the message type.</returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.GetMessageTypesHandledOnThisEndpoint">
+      <summary>
+            Returns all the message types which have handlers configured for them.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.GetDestinationForMessageType(System.Type)">
+      <summary>
+            Gets the destination address for a message type.
+            </summary>
+      <param name="messageType">The message type to get the destination for.</param>
+      <returns>The address of the destination associated with the message type.</returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.UnicastBus.AssertBusIsStarted">
+      <summary>
+            Throws an exception if the bus hasn't begun the startup process.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.AutoSubscribe">
+      <summary>
+            When set, when starting up, the bus performs 
+            a subscribe operation for message types for which it has
+            handlers and that are owned by a different endpoint.
+            Default is true.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.DisableMessageHandling">
+      <summary>
+            Should be used by programmer, not administrator.
+            Disables the handling of incoming messages.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.Transport">
+      <summary>
+            Should be used by programmer, not administrator.
+            Sets an <see cref="T:NServiceBus.Unicast.Transport.ITransport" /> implementation to use as the
+            message transport for the bus.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.SubscriptionStorage">
+      <summary>
+            Should be used by programmer, not administrator.
+            Sets an <see cref="T:NServiceBus.Unicast.Subscriptions.ISubscriptionStorage" /> implementation to
+            be used for subscription storage for the bus.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.Builder">
+      <summary>
+            Should be used by programmer, not administrator.
+            Sets <see cref="T:NServiceBus.ObjectBuilder.IBuilder" /> implementation that will be used to 
+            dynamically instantiate and execute message handlers.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.MessageMapper">
+      <summary>
+            Gets/sets the message mapper.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.PropogateReturnAddressOnSend">
+      <summary>
+            Should be used by programmer, not administrator.
+            Sets whether or not the return address of a received message 
+            should be propogated when the message is forwarded. This field is
+            used primarily for the Distributor.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.ImpersonateSender">
+      <summary>
+            Should be used by programmer, not administrator.
+            Sets whether or not the bus should impersonate the sender
+            of a message it has received when re-sending the message.
+            What occurs is that the thread sets its current principal
+            to the value found in the <see cref="P:NServiceBus.Unicast.Transport.TransportMessage.WindowsIdentityName" />
+            when that thread handles a message.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.DistributorDataAddress">
+      <summary>
+            Should be used by administrator, not programmer.
+            Sets the address to which the messages received on this bus
+            will be sent when the method HandleCurrentMessageLater is called.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.DistributorControlAddress">
+      <summary>
+            Should be used by administrator, not programmer.
+            Sets the address of the distributor control queue.
+            </summary>
+      <remarks>
+            Notifies the given distributor
+            when a thread is now available to handle a new message.
+            </remarks>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.ForwardReceivedMessagesTo">
+      <summary>
+            Should be used by administrator, not programmer.
+            Sets the address to which all messages received on this bus will be 
+            forwarded to (not including subscription messages). 
+            This is primarily useful for smart client scenarios 
+            where both client and server software are installed on the mobile
+            device. The server software will have this field set to the address
+            of the real server.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.MessageOwners">
+      <summary>
+            Should be used by administrator, not programmer.
+            Sets the message types associated with the bus.
+            </summary>
+      <remarks>
+            This property accepts a dictionary where the key can be the name of a type implementing
+            <see cref="T:NServiceBus.IMessage" /> or the name of an assembly that contains message types.  The value 
+            of each entry is the address of the owner of the message type defined in the key.
+            If an assembly is specified then all the the types in the assembly implementing <see cref="T:NServiceBus.IMessage" /> 
+            will be registered against the address defined in the value of the entry.
+            </remarks>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.MessageHandlerAssemblies">
+      <summary>
+            Sets the list of assemblies which contain a message handlers
+            for the bus.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.MessageHandlerTypes">
+      <summary>
+            Sets the types that will be scanned for message handlers.
+            Those found will be invoked in the same order as given.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.UnicastBus.SubscriptionAuthorizer">
+      <summary>
+            Object that will be used to authorize subscription requests.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.UnicastBus.MessageReceived">
+      <summary>
+            Event raised when a message is received.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.UnicastBus.NoSubscribersForMessage">
+      <summary>
+            Event raised when no subscribers found for the published message.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.UnicastBus.ClientSubscribed">
+      <summary>
+            Event raised when client subscribed to a message type.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.UnicastBus.Started">
+      <summary>
+            Implementation of IStartableBus.Started event.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Subscriptions.ISubscriptionStorage">
+      <summary>
+            Defines storage for subscriptions
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Subscriptions.ISubscriptionStorage.Subscribe(System.String,System.Collections.Generic.IList{System.String})">
+      <summary>
+            Subscribes the given client address to messages of the given types.
+            </summary>
+      <param name="client">
+      </param>
+      <param name="messageTypes">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.Subscriptions.ISubscriptionStorage.Unsubscribe(System.String,System.Collections.Generic.IList{System.String})">
+      <summary>
+            Unsubscribes the given client address from messages of the given types.
+            </summary>
+      <param name="client">
+      </param>
+      <param name="messageTypes">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.Subscriptions.ISubscriptionStorage.GetSubscribersForMessage(System.Collections.Generic.IList{System.String})">
+      <summary>
+            Returns a list of addresses of subscribers that previously requested to be notified
+            of messages of the given message types.
+            </summary>
+      <param name="messageTypes">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Subscriptions.ISubscriptionStorage.Init">
+      <summary>
+            Notifies the subscription storage that now is the time to perform
+            any initialization work
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Subscriptions.Msmq.Config.ConfigMsmqSubscriptionStorage">
+      <summary>
+            Extends the base Configure class with MsmqSubscriptionStorage specific methods.
+            Reads administrator set values from the MsmqSubscriptionStorageConfig section
+            of the app.config.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Subscriptions.Msmq.Config.ConfigMsmqSubscriptionStorage.Configure(NServiceBus.Configure)">
+      <summary>
+            Wraps the given configuration object but stores the same 
+            builder and configurer properties.
+            </summary>
+      <param name="config">
+      </param>
+    </member>
+    <member name="T:NServiceBus.ConfigureMsmqSubscriptionStorage">
+      <summary>
+            Contains extension methods to NServiceBus.Configure.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ConfigureMsmqSubscriptionStorage.MsmqSubscriptionStorage(NServiceBus.Configure)">
+      <summary>
+            Stores subscription data using MSMQ.
+            If multiple machines need to share the same list of subscribers,
+            you should not choose this option - prefer the DbSubscriptionStorage
+            in that case.
+            </summary>
+      <param name="config">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.Config.MsmqSubscriptionStorageConfig">
+      <summary>
+            Contains the properties representing the MsmqSubscriptionStorage configuration section.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.MsmqSubscriptionStorageConfig.Queue">
+      <summary>
+            The queue where subscription data will be stored.
+            Use the "queue@machine" convention.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Subscriptions.Msmq.Entry">
+      <summary>
+            Describes an entry in the list of subscriptions.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Subscriptions.Msmq.Entry.MessageType">
+      <summary>
+            Gets the message type for the subscription entry.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Subscriptions.Msmq.Entry.Subscriber">
+      <summary>
+            Gets the subscription request message.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Subscriptions.Msmq.MsmqSubscriptionStorage">
+      <summary>
+            Provides functionality for managing message subscriptions
+            using MSMQ.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.Subscriptions.Msmq.MsmqSubscriptionStorage.lookup">
+      <summary>
+            lookup from subscriber, to message type, to message id
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Subscriptions.Msmq.MsmqSubscriptionStorage.ConfigurationIsWrong">
+      <summary>
+            Checks if configuration is wrong - endpoint isn't transactional and
+            object isn't configured to handle own transactions.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Subscriptions.Msmq.MsmqSubscriptionStorage.Add(System.String,System.String)">
+      <summary>
+            Adds a message to the subscription store.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Subscriptions.Msmq.MsmqSubscriptionStorage.Remove(System.String,System.String)">
+      <summary>
+            Removes a message from the subscription store.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Subscriptions.Msmq.MsmqSubscriptionStorage.GetTransactionType">
+      <summary>
+            Returns the transaction type (automatic or single) that should be used
+            based on the configuration of enlisting into external transactions.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Subscriptions.Msmq.MsmqSubscriptionStorage.AddToLookup(System.String,System.String,System.String)">
+      <summary>
+            Adds a message to the lookup to find message from
+            subscriber, to message type, to message id
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Subscriptions.Msmq.MsmqSubscriptionStorage.DontUseExternalTransaction">
+      <summary>
+            Gets/sets whether or not to use a trasaction started outside the 
+            subscription store.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Subscriptions.Msmq.MsmqSubscriptionStorage.Queue">
+      <summary>
+            Sets the address of the queue where subscription messages will be stored.
+            For a local queue, just use its name - msmq specific info isn't needed.
+            For a remote queue (supported MSMQ 4.0), use the format "queue@machine".
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Transport.CompletionMessage">
+      <summary>
+            A message that will be sent on completion or error of an NServiceBus message.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.CompletionMessage.ErrorCode">
+      <summary>
+            Gets/sets a code specifying the type of error that occurred.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Transport.HeaderInfo">
+      <summary>
+            Represents the structure of header information passed in a TransportMessage.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.HeaderInfo.Key">
+      <summary>
+            The key used to lookup the value in the header collection.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.HeaderInfo.Value">
+      <summary>
+            The value stored under the key in the header collection.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Transport.ITransport">
+      <summary>
+            Defines the basic functionality of a transport to be used by NServiceBus.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.ITransport.Start">
+      <summary>
+            Starts the transport.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.ITransport.ChangeNumberOfWorkerThreads(System.Int32)">
+      <summary>
+            Changes the number of worker threads running in the transport.
+            This may stop active worker threads; those threads will finish
+            processing their current message and then exit.
+            </summary>
+      <param name="targetNumberOfWorkerThreads">
+            The requested number of active worker threads after
+            the necessary threads have been stopped or started.
+            </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.ITransport.Send(NServiceBus.Unicast.Transport.TransportMessage,System.String)">
+      <summary>
+            Sends a message to the specified destination.
+            </summary>
+      <param name="m">The message to send.</param>
+      <param name="destination">The address to send the message to.</param>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.ITransport.ReceiveMessageLater(NServiceBus.Unicast.Transport.TransportMessage)">
+      <summary>
+            Re-queues a message for processing at another time.
+            </summary>
+      <param name="m">The message to process later.</param>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.ITransport.GetNumberOfPendingMessages">
+      <summary>
+            Access the underlying technology to get the number of unhandled messages.
+            </summary>
+      <returns>The number of pending messages.</returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.ITransport.AbortHandlingCurrentMessage">
+      <summary>
+            Causes the current message being handled to return to the queue.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.ITransport.NumberOfWorkerThreads">
+      <summary>
+            Gets the number of worker threads currently running in the transport.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.ITransport.Address">
+      <summary>
+            Gets the address at which the transport receives messages.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.Transport.ITransport.TransportMessageReceived">
+      <summary>
+            Raised when a message is received at the transport's <see cref="P:NServiceBus.Unicast.Transport.ITransport.Address" />.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.Transport.ITransport.StartedMessageProcessing">
+      <summary>
+            Raised when a message is available but before <see cref="E:NServiceBus.Unicast.Transport.ITransport.TransportMessageReceived" /> is raised.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.Transport.ITransport.FinishedMessageProcessing">
+      <summary>
+            Raised after message processing was completed, even in case of an exception in message processing.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.Transport.ITransport.FailedMessageProcessing">
+      <summary>
+            Raised if an exception was encountered at any point in the processing - including
+            when the transaction commits.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Transport.MessageIntentEnum">
+      <summary>
+             Enumeration defining different kinds of message intent like Send and Publish.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.Transport.MessageIntentEnum.Init">
+      <summary>
+            Initialization
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.Transport.MessageIntentEnum.Send">
+      <summary>
+             Regular point-to-point send
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.Transport.MessageIntentEnum.Publish">
+      <summary>
+             Publish, not a regular point-to-point send
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.Transport.MessageIntentEnum.Subscribe">
+      <summary>
+            Subscribe
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.Transport.MessageIntentEnum.Unsubscribe">
+      <summary>
+            Unsubscribe
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Transport.TransportMessage">
+      <summary>
+            An envelope used by NServiceBus to package messages for transmission.
+            </summary>
+      <remarks>
+            All messages sent and received by NServiceBus are wrapped in this class. 
+            More than one message can be bundled in the envelope to be transmitted or 
+            received by the bus.
+            </remarks>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.TransportMessage.CopyMessagesToBody">
+      <summary>
+            Recreates the list of messages in the body field
+            from the contents of the messages field.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessage.Id">
+      <summary>
+            Gets/sets the identifier of this message bundle.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessage.IdForCorrelation">
+      <summary>
+            Gets/sets the identifier that is copied to <see cref="P:NServiceBus.Unicast.Transport.TransportMessage.CorrelationId" />.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessage.CorrelationId">
+      <summary>
+            Gets/sets the uniqe identifier of another message bundle
+            this message bundle is associated with.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessage.ReturnAddress">
+      <summary>
+            Gets/sets the return address of the message bundle.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessage.WindowsIdentityName">
+      <summary>
+            Gets/sets the name of the Windows identity the message
+            is being sent as.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessage.Recoverable">
+      <summary>
+            Gets/sets whether or not the message is supposed to
+            be guaranteed deliverable.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessage.MessageIntent">
+      <summary>
+            Indicates to the infrastructure the message intent (publish, or regular send).
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessage.TimeToBeReceived">
+      <summary>
+            Gets/sets the maximum time limit in which the message bundle
+            must be received.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessage.TimeSent">
+      <summary>
+            Gets/sets the time that the message was sent by the source machine.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessage.Headers">
+      <summary>
+            Gets/sets other applicative out-of-band information.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessage.Body">
+      <summary>
+            Gets/sets the array of messages in the message bundle.
+            </summary>
+      <remarks>
+            Since the XmlSerializer doesn't work well with interfaces,
+            we ask it to ignore this data and synchronize with the <see cref="F:NServiceBus.Unicast.Transport.TransportMessage.messages" /> field.
+            </remarks>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessage.BodyStream">
+      <summary>
+            Gets/sets a stream to the body content of the message
+            </summary>
+      <remarks>
+            Used for cases where we can't deserialize the contents.
+            </remarks>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessage.Messages">
+      <summary>
+            Gets/sets the list of messages in the message bundle.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Transport.SubscriptionMessage">
+      <summary>
+            A message representing a subscribe/unsubscribe request to receive messages
+            of a specific type.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.SubscriptionMessage.#ctor">
+      <summary>
+            Initializes a new SubscriptionMessage.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.SubscriptionMessage.#ctor(System.String,NServiceBus.Unicast.Transport.SubscriptionType)">
+      <summary>
+            Initializes a new SubscriptionMessage for the specified message type
+            that indicates whether to add or remove a subscription.
+            </summary>
+      <param name="typeName">
+      </param>
+      <param name="subscriptionType">
+      </param>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.SubscriptionMessage.TypeName">
+      <summary>
+            Gets/sets the name of the message type to subscribe to or 
+            unsubscribe from.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.SubscriptionMessage.SubscriptionType">
+      <summary>
+            Gets/sets whether the SubscriptionMessage is to add or
+            remove a subscription.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Transport.SubscriptionType">
+      <summary>
+            Describes subscription message types.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.Transport.SubscriptionType.Add">
+      <summary>
+            Add a subscription.
+            </summary>
+    </member>
+    <member name="F:NServiceBus.Unicast.Transport.SubscriptionType.Remove">
+      <summary>
+            Remove a subscription.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Transport.TransportMessageReceivedEventArgs">
+      <summary>
+            Defines the arguments passed to the event handler of the
+            <see cref="E:NServiceBus.Unicast.Transport.ITransport.TransportMessageReceived" /> event.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.TransportMessageReceivedEventArgs.#ctor(NServiceBus.Unicast.Transport.TransportMessage)">
+      <summary>
+            Initializes a new TransportMessageReceivedEventArgs.
+            </summary>
+      <param name="m">The message that was received.</param>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.TransportMessageReceivedEventArgs.Message">
+      <summary>
+            Gets the message received.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Transport.Msmq.Config.ConfigMsmqTransport">
+      <summary>
+            Extends the base Configure class with MsmqTransport specific methods.
+            Reads administrator set values from the MsmqTransportConfig section
+            of the app.config.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.Config.ConfigMsmqTransport.Configure(NServiceBus.Configure)">
+      <summary>
+            Wraps the given configuration object but stores the same 
+            builder and configurer properties.
+            </summary>
+      <param name="config">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.Config.ConfigMsmqTransport.IsTransactional(System.Boolean)">
+      <summary>
+            Sets the transactionality of the endpoint.
+            If true, the endpoint will not lose messages when exceptions occur.
+            If false, the endpoint may lose messages when exceptions occur.
+            </summary>
+      <param name="value">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.Config.ConfigMsmqTransport.PurgeOnStartup(System.Boolean)">
+      <summary>
+            Requests that the incoming queue be purged of all messages when the bus is started.
+            All messages in this queue will be deleted if this is true.
+            Setting this to true may make sense for certain smart-client applications, 
+            but rarely for server applications.
+            </summary>
+      <param name="value">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.Config.ConfigMsmqTransport.IsolationLevel(System.Transactions.IsolationLevel)">
+      <summary>
+            Sets the isolation level that database transactions on this endpoint will run at.
+            This value is only relevant when IsTransactional has been set to true.
+            
+            Higher levels like RepeatableRead and Serializable promise a higher level
+            of consistency, but at the cost of lower parallelism and throughput.
+            
+            If you wish to run sagas on this endpoint, RepeatableRead is the suggested value
+            and is the default value.
+            </summary>
+      <param name="isolationLevel">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.Config.ConfigMsmqTransport.DoNotCreateQueues">
+      <summary>
+            If queues configured do not exist, will not cause them
+            to be created on startup.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.Config.ConfigMsmqTransport.TransactionTimeout(System.TimeSpan)">
+      <summary>
+            Sets the time span where a transaction will timeout.
+            
+            Most endpoints should leave it at the default.
+            </summary>
+      <param name="transactionTimeout">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.ConfigureMsmqTransport">
+      <summary>
+            Contains extension methods to NServiceBus.Configure.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.ConfigureMsmqTransport.MsmqTransport(NServiceBus.Configure)">
+      <summary>
+            Returns MsmqTransport specific configuration settings.
+            </summary>
+      <param name="config">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.Config.MsmqTransportConfig">
+      <summary>
+            Contains the properties representing the MsmqTransport configuration section.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.MsmqTransportConfig.InputQueue">
+      <summary>
+            The queue to receive messages from in the format
+            "queue@machine".
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.MsmqTransportConfig.ErrorQueue">
+      <summary>
+            The queue to which to forward messages that could not be processed
+            in the format "queue@machine".
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.MsmqTransportConfig.NumberOfWorkerThreads">
+      <summary>
+            The number of worker threads that can process messages in parallel.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Config.MsmqTransportConfig.MaxRetries">
+      <summary>
+            The maximum number of times to retry processing a message
+            when it fails before moving it to the error queue.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Transport.Msmq.AbortHandlingCurrentMessageException">
+      <summary>
+            An exception thrown when applicative code requests abort the
+            handling of the current message.
+            The reason this is modeled as an exception is to cause
+            existing transaction scopes to rollback.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Unicast.Transport.Msmq.MsmqTransport">
+      <summary>
+            An MSMQ implementation of <see cref="T:NServiceBus.Unicast.Transport.ITransport" /> for use with
+            NServiceBus.
+            </summary>
+      <remarks>
+            A transport is used by NServiceBus as a high level abstraction from the 
+            underlying messaging service being used to transfer messages.
+            </remarks>
+    </member>
+    <member name="F:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.failuresPerMessage">
+      <summary>
+            Accessed by multiple threads - lock using failuresPerMessageLocker.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.ChangeNumberOfWorkerThreads(System.Int32)">
+      <summary>
+            Changes the number of worker threads to the given target,
+            stopping or starting worker threads as needed.
+            </summary>
+      <param name="targetNumberOfWorkerThreads">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.Start">
+      <summary>
+            Starts the transport.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.ReceiveMessageLater(NServiceBus.Unicast.Transport.TransportMessage)">
+      <summary>
+            Re-queues a message for processing at another time.
+            </summary>
+      <param name="m">The message to process later.</param>
+      <remarks>
+            This method will place the message onto the back of the queue
+            which may break message ordering.
+            </remarks>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.Send(NServiceBus.Unicast.Transport.TransportMessage,System.String)">
+      <summary>
+            Sends a message to the specified destination.
+            </summary>
+      <param name="m">The message to send.</param>
+      <param name="destination">The address of the destination to send the message to.</param>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.GetNumberOfPendingMessages">
+      <summary>
+            Returns the number of messages in the queue.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.Process">
+      <summary>
+            Waits for a message to become available on the input queue
+            and then receives it.
+            </summary>
+      <remarks>
+            If the queue is transactional the receive operation will be wrapped in a 
+            transaction.
+            </remarks>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.ReceiveFromQueue">
+      <summary>
+            Receives a message from the input queue.
+            </summary>
+      <remarks>
+            If a message is received the <see cref="E:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.TransportMessageReceived" /> event will be raised.
+            </remarks>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.MoveToErrorQueue(System.Messaging.Message)">
+      <summary>
+            Moves the given message to the configured error queue.
+            </summary>
+      <param name="m">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.AbortHandlingCurrentMessage">
+      <summary>
+            Causes the processing of the current message to be aborted.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.Convert(System.Messaging.Message)">
+      <summary>
+            Converts an MSMQ <see cref="T:System.Messaging.Message" /> into an NServiceBus message.
+            </summary>
+      <param name="m">The MSMQ message to convert.</param>
+      <returns>An NServiceBus message.</returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.GetFailedQueue(System.Messaging.Message)">
+      <summary>
+            Returns the queue whose process failed processing the given message
+            by accessing the label of the message.
+            </summary>
+      <param name="m">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.GetLabelWithoutFailedQueue(System.Messaging.Message)">
+      <summary>
+            Gets the label of the message stripping out the failed queue.
+            </summary>
+      <param name="m">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.Extract(System.Messaging.Message)">
+      <summary>
+            Extracts the messages from an MSMQ <see cref="T:System.Messaging.Message" />.
+            </summary>
+      <param name="message">The MSMQ message to extract from.</param>
+      <returns>An array of handleable messages.</returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.GetTransactionTypeForReceive">
+      <summary>
+            Gets the transaction type to use when receiving a message from the queue.
+            </summary>
+      <returns>The transaction type to use.</returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.GetTransactionTypeForSend">
+      <summary>
+            Gets the transaction type to use when sending a message.
+            </summary>
+      <returns>The transaction type to use.</returns>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.SetLocalQueue(System.Messaging.MessageQueue)">
+      <summary>
+            Sets the queue on the transport to the specified MSMQ queue.
+            </summary>
+      <param name="q">The MSMQ queue to set.</param>
+    </member>
+    <member name="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.Dispose">
+      <summary>
+            Stops all worker threads and disposes the MSMQ queue.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.InputQueue">
+      <summary>
+            The path to the queue the transport will read from.
+            Only specify the name of the queue - msmq specific address not required.
+            When using MSMQ v3, only local queues are supported.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.ErrorQueue">
+      <summary>
+            Sets the path to the queue the transport will transfer
+            errors to.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.IsTransactional">
+      <summary>
+            Sets whether or not the transport is transactional.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.SkipDeserialization">
+      <summary>
+            Sets whether or not the transport should deserialize
+            the body of the message placed on the queue.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.PurgeOnStartup">
+      <summary>
+            Sets whether or not the transport should purge the input
+            queue when it is started.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.MaxRetries">
+      <summary>
+            Sets the maximum number of times a message will be retried
+            when an exception is thrown as a result of handling the message.
+            This value is only relevant when <see cref="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.IsTransactional" /> is true.
+            </summary>
+      <remarks>
+            Default value is 5.
+            </remarks>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.SecondsToWaitForMessage">
+      <summary>
+            Sets the maximum interval of time for when a thread thinks there is a message in the queue
+            that it tries to receive, until it gives up.
+            
+            Default value is 10.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.TransactionTimeout">
+      <summary>
+            Property for getting/setting the period of time when the transaction times out.
+            Only relevant when <see cref="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.IsTransactional" /> is set to true.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.IsolationLevel">
+      <summary>
+            Property for getting/setting the isolation level of the transaction scope.
+            Only relevant when <see cref="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.IsTransactional" /> is set to true.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.DoNotCreateQueues">
+      <summary>
+            Property indicating that queues will not be created on startup
+            if they do not already exist.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.MessageSerializer">
+      <summary>
+            Sets the object which will be used to serialize and deserialize messages.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.NumberOfWorkerThreads">
+      <summary>
+            Gets/sets the number of concurrent threads that should be
+            created for processing the queue.
+            
+            Get returns the actual number of running worker threads, which may
+            be different than the originally configured value.
+            
+            When used as a setter, this value will be used by the <see cref="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.Start" />
+            method only and will have no effect if called afterwards.
+            
+            To change the number of worker threads at runtime, call <see cref="M:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.ChangeNumberOfWorkerThreads(System.Int32)" />.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.Address">
+      <summary>
+            Gets the address of the input queue.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.StartedMessageProcessing">
+      <summary>
+            Event which indicates that message processing has started.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.FinishedMessageProcessing">
+      <summary>
+            Event which indicates that message processing has completed.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.FailedMessageProcessing">
+      <summary>
+            Event which indicates that message processing failed for some reason.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Unicast.Transport.Msmq.MsmqTransport.TransportMessageReceived">
+      <summary>
+            Event raised when a message has been received in the input queue.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Utils.DtcUtil">
+      <summary>
+            Utility class for working with DTC.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Utils.DtcUtil.StartDtcIfNecessary">
+      <summary>
+            Checks that the MSDTC service is running and configured correctly, and if not
+            takes the necessary corrective actions to make it so.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Utils.MsmqInstallation">
+      <summary>
+            Utility class for starting and installing MSMQ.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Utils.MsmqInstallation.StartMsmqIfNecessary">
+      <summary>
+            Checks that MSMQ is installed, configured correctly, and started, and if not
+            takes the necessary corrective actions to make it so.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Utils.MsmqInstallation.IsInstallationGood">
+      <summary>
+            Determines if the msmq installation on the current machine is ok
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Utils.MsmqInstallation.LoadLibraryW(System.String)">
+             Return Type: HMODULE-&gt;HINSTANCE-&gt;HINSTANCE__*
+            lpLibFileName: LPCWSTR-&gt;WCHAR*
+        </member>
+    <member name="T:NServiceBus.Utils.MsmqUtilities">
+      <summary>
+             MSMQ-related utility functions
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Utils.MsmqUtilities.CreateQueueIfNecessary(System.String)">
+      <summary>
+             Utility method for creating a queue if it does not exist.
+            </summary>
+      <param name="queueName">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Utils.MsmqUtilities.CreateQueue(System.String)">
+      <summary>
+             Create named message queue
+            </summary>
+      <param name="queueName">
+      </param>
+    </member>
+    <member name="M:NServiceBus.Utils.MsmqUtilities.GetFullPath(System.String)">
+      <summary>
+            Turns a '@' separated value into a full path.
+            Format is 'queue@machine', or 'queue@ipaddress'
+            </summary>
+      <param name="value">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Utils.MsmqUtilities.GetFullPathWithoutPrefix(System.String)">
+      <summary>
+            Returns the full path without Format or direct os
+            from a '@' separated path.
+            </summary>
+      <param name="value">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Utils.MsmqUtilities.GetMachineNameFromLogicalName(System.String)">
+      <summary>
+            Returns the machine name from a '@' separated full logical name,
+            or the Environment.MachineName otherwise.
+            </summary>
+      <param name="logicalName">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Utils.MsmqUtilities.GetQueueNameFromLogicalName(System.String)">
+      <summary>
+            Returns the queue name from a '@' separated full logical name.
+            </summary>
+      <param name="logicalName">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Utils.MsmqUtilities.QueueIsLocal(System.String)">
+      <summary>
+            Checks whether or not a queue is local by its path.
+            </summary>
+      <param name="value">The path to the queue to check.</param>
+      <returns>true if the queue is local, otherwise false.</returns>
+    </member>
+    <member name="M:NServiceBus.Utils.MsmqUtilities.GetIndependentAddressForQueue(System.Messaging.MessageQueue)">
+      <summary>
+            Gets an independent address for the queue in the form:
+            queue@machine.
+            </summary>
+      <param name="q">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.Utils.PerformanceCounterInstallation">
+      <summary>
+            Performs installation of nessesary categories and conters for NServiceBus
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Utils.PerformanceCounterInstallation.InstallCounters">
+      <summary>
+            Starts the install
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Utils.ProcessUtil">
+      <summary>
+            Utility class for changing a windows service's status.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Utils.ProcessUtil.ChangeServiceStatus(System.ServiceProcess.ServiceController,System.ServiceProcess.ServiceControllerStatus,System.Action)">
+      <summary>
+            Checks the status of the given controller, and if it isn't the requested state,
+            performs the given action, and checks the state again.
+            </summary>
+      <param name="controller">
+      </param>
+      <param name="status">
+      </param>
+      <param name="changeStatus">
+      </param>
+    </member>
+    <member name="T:NServiceBus.Utils.TransactionWrapper">
+      <summary>
+            Provides functionality for executing a callback in a transaction.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Utils.TransactionWrapper.RunInTransaction(System.Action)">
+      <summary>
+            Executes the provided delegate method in a transaction.
+            </summary>
+      <param name="callback">The method to call.</param>
+    </member>
+    <member name="M:NServiceBus.Utils.TransactionWrapper.RunInTransaction(System.Action,System.Transactions.IsolationLevel,System.TimeSpan)">
+      <summary>
+            Executes the provided delegate method in a transaction.
+            </summary>
+      <param name="callback">The delegate method to call.</param>
+      <param name="isolationLevel">The isolation level of the transaction.</param>
+      <param name="transactionTimeout">The timeout period of the transaction.</param>
+    </member>
+    <member name="T:NServiceBus.Utils.WorkerThread">
+      <summary>
+            Represents a worker thread that will repeatedly execute a callback.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Utils.WorkerThread.#ctor(System.Action)">
+      <summary>
+            Initializes a new WorkerThread for the specified method to run.
+            </summary>
+      <param name="methodToRunInLoop">The delegate method to execute in a loop.</param>
+    </member>
+    <member name="M:NServiceBus.Utils.WorkerThread.Start">
+      <summary>
+            Starts the worker thread.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Utils.WorkerThread.Stop">
+      <summary>
+            Stops the worker thread.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Utils.WorkerThread.Loop">
+      <summary>
+            Executes the delegate method until the <see cref="M:NServiceBus.Utils.WorkerThread.Stop" />
+            method is called.
+            </summary>
+    </member>
+    <member name="P:NServiceBus.Utils.WorkerThread.StopRequested">
+      <summary>
+            Gets whether or not a stop request has been received.
+            </summary>
+    </member>
+    <member name="E:NServiceBus.Utils.WorkerThread.Stopped">
+      <summary>
+            Event raised when the worker thread has stopped.
+            </summary>
+    </member>
+    <member name="T:NServiceBus.Utils.Reflection.ExtensionMethods">
+      <summary>
+            Contains extension methods
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.ExtensionMethods.IsGenericallyEquivalent(System.Type,System.Type,System.Type)">
+      <summary>
+            Useful for finding if a type is (for example) IMessageHandler{T} where T : IMessage.
+            </summary>
+      <param name="type">
+      </param>
+      <param name="openGenericType">
+      </param>
+      <param name="genericArg">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.ExtensionMethods.GetGenericallyContainedType(System.Type,System.Type,System.Type)">
+      <summary>
+            Returns the enclosed generic type given that the type is GenericallyEquivalent.
+            </summary>
+      <param name="type">
+      </param>
+      <param name="openGenericType">
+      </param>
+      <param name="genericArg">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.ExtensionMethods.IsSimpleType(System.Type)">
+      <summary>
+            Returns true if the type can be serialized as is.
+            </summary>
+      <param name="type">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.ExtensionMethods.SerializationFriendlyName(System.Type)">
+      <summary>
+            Takes the name of the given type and makes it friendly for serialization
+            by removing problematic characters.
+            </summary>
+      <param name="t">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.Utils.Reflection.Reflect">
+      <summary>
+            Provides strong-typed reflection for static members of any type or calling 
+            object constructors (to retrieve the constructor <see cref="T:System.Reflection.MethodInfo" />).
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect.#ctor">
+      <summary>
+            Initializes the reflector class.
+            </summary>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect.GetConstructor(System.Linq.Expressions.Expression{System.Action})">
+      <summary>
+            Gets the constructor represented in the lambda expression.
+            </summary>
+      <exception cref="T:System.ArgumentNullException">The <paramref name="constructor" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">The <paramref name="constructor" /> is not a lambda expression or it does not represent a constructor invocation.</exception>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect.GetMethod(System.Linq.Expressions.Expression{System.Action})">
+      <summary>
+            Gets the method represented by the lambda expression.
+            </summary>
+      <exception cref="T:System.ArgumentNullException">The <paramref name="method" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">The <paramref name="method" /> is not a lambda expression or it does not represent a method invocation.</exception>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect.GetProperty(System.Linq.Expressions.Expression{System.Func{System.Object}})">
+      <summary>
+            Gets the property represented by the lambda expression.
+            </summary>
+      <exception cref="T:System.ArgumentNullException">The <paramref name="property" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">The <paramref name="property" /> is not a lambda expression or it does not represent a property access.</exception>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect.GetField(System.Linq.Expressions.Expression{System.Func{System.Object}})">
+      <summary>
+            Gets the field represented by the lambda expression.
+            </summary>
+      <exception cref="T:System.ArgumentNullException">The <paramref name="field" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">The <paramref name="field" /> is not a lambda expression or it does not represent a field access.</exception>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect.GetMethodInfo(System.Linq.Expressions.Expression)">
+      <summary>
+            Returns a MethodInfo for an expression containing a call to a method.
+            </summary>
+      <param name="method">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect.GetMemberInfo(System.Linq.Expressions.Expression,System.Boolean)">
+      <summary>
+            Returns a MemberInfo for an expression containing a call to a property.
+            </summary>
+      <param name="member">
+      </param>
+      <param name="checkForSingleDot">Checks that the member expression doesn't have more than one dot like a.Prop.Val</param>
+      <returns>
+      </returns>
+    </member>
+    <member name="T:NServiceBus.Utils.Reflection.Reflect`1">
+      <summary>
+            Provides strong-typed reflection of the <typeparamref name="TTarget" /> 
+            type.
+            </summary>
+      <typeparam name="TTarget">Type to reflect.</typeparam>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect`1.GetMethod(System.Linq.Expressions.Expression{System.Action{`0}})">
+      <summary>
+            Gets the method represented by the lambda expression.
+            </summary>
+      <exception cref="T:System.ArgumentNullException">The <paramref name="method" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">The <paramref name="method" /> is not a lambda expression or it does not represent a method invocation.</exception>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect`1.GetMethod``1(System.Linq.Expressions.Expression{System.Action{`0,``0}})">
+      <summary>
+            Gets the method represented by the lambda expression.
+            </summary>
+      <exception cref="T:System.ArgumentNullException">The <paramref name="method" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">The <paramref name="method" /> is not a lambda expression or it does not represent a method invocation.</exception>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect`1.GetMethod``2(System.Linq.Expressions.Expression{System.Action{`0,``0,``1}})">
+      <summary>
+            Gets the method represented by the lambda expression.
+            </summary>
+      <exception cref="T:System.ArgumentNullException">The <paramref name="method" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">The <paramref name="method" /> is not a lambda expression or it does not represent a method invocation.</exception>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect`1.GetMethod``3(System.Linq.Expressions.Expression{System.Action{`0,``0,``1,``2}})">
+      <summary>
+            Gets the method represented by the lambda expression.
+            </summary>
+      <exception cref="T:System.ArgumentNullException">The <paramref name="method" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">The <paramref name="method" /> is not a lambda expression or it does not represent a method invocation.</exception>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect`1.GetProperty(System.Linq.Expressions.Expression{System.Func{`0,System.Object}})">
+      <summary>
+            Gets the property represented by the lambda expression.
+            </summary>
+      <exception cref="T:System.ArgumentNullException">The <paramref name="property" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">The <paramref name="property" /> is not a lambda expression or it does not represent a property access.</exception>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect`1.GetProperty(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},System.Boolean)">
+      <summary>
+            Gets the property represented by the lambda expression.
+            If <see cref="!:checkForSingleDot" /> is true, then the property expression is checked to see that
+            only a single dot is present.
+            </summary>
+      <param name="property">
+      </param>
+      <param name="checkForSingleDot">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:NServiceBus.Utils.Reflection.Reflect`1.GetField(System.Linq.Expressions.Expression{System.Func{`0,System.Object}})">
+      <summary>
+            Gets the field represented by the lambda expression.
+            </summary>
+      <exception cref="T:System.ArgumentNullException">The <paramref name="field" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">The <paramref name="field" /> is not a lambda expression or it does not represent a field access.</exception>
+    </member>
+  </members>
+</doc>

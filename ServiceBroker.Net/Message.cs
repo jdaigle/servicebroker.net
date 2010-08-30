@@ -19,10 +19,9 @@ namespace ServiceBroker.Net {
             message.MessageTypeName = reader.GetString(5);
             //m_validation = reader.GetString(6);
             if (!reader.IsDBNull(7)) {
-                var bodyStreamReader = new StreamReader(reader.GetSqlBytes(7).Stream);
-                message.Body = bodyStreamReader.ReadToEnd();
+                message.Body = reader.GetSqlBytes(7).Buffer;
             } else
-                message.Body = string.Empty;
+                message.Body = new byte[0];
             return message;
         }
 
@@ -32,7 +31,9 @@ namespace ServiceBroker.Net {
         public string ServiceName { get; private set; }
         public string ServiceContractName { get; private set; }
         public string MessageTypeName { get; private set; }
-        public string Body { get; private set; }
+        public byte[] Body { get; private set; }
+
+        public Stream BodyStream { get { return new MemoryStream(Body); } }
 
         private Message() { }
     }
