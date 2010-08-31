@@ -197,24 +197,19 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         /// <param name="destination">The address of the destination to send the message to.</param>
         public void Send(TransportMessage m, string destination) {
             GetSqlTransactionManager().RunInTransaction(transaction => {
-                try {
-                    // Always begin and end a conversation to simulate a monologe
-                    var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReturnService, destination, NServiceBusTransportMessageContract);
+                // Always begin and end a conversation to simulate a monologe
+                var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReturnService, destination, NServiceBusTransportMessageContract);
 
-                    // Use the conversation handle as the message Id
-                    m.Id = conversationHandle.ToString();
+                // Use the conversation handle as the message Id
+                m.Id = conversationHandle.ToString();
 
-                    var stream = new MemoryStream(1);
-                    // Serialize the transport message
-                    new BinaryFormatter().Serialize(stream, m);
+                var stream = new MemoryStream(1);
+                // Serialize the transport message
+                new BinaryFormatter().Serialize(stream, m);
 
 
-                    ServiceBrokerWrapper.Send(transaction, conversationHandle, NServiceBusTransportMessage, stream.GetBuffer());
-                    ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
-                } catch (Exception) {
-                    transaction.Rollback("UndoReceiveOnSend");
-                    throw;
-                }
+                ServiceBrokerWrapper.Send(transaction, conversationHandle, NServiceBusTransportMessage, stream.GetBuffer());
+                ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
             });
         }
 
@@ -261,26 +256,18 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
             _needToAbort = false;
             conversationHandle = string.Empty;
 
-            GetSqlTransactionManager().RunInTransaction(transaction => {
-
-                // Create a transaction save point to rollback (instead of rolling back the ENTIRE transaction)
-                transaction.Save("UndoReceiveOnReceive");
-
-                try {
+            try {
+                GetSqlTransactionManager().RunInTransaction(transaction => {
                     ReceiveFromQueue(transaction);
-                    ClearFailuresForConversation(conversationHandle);
-                } catch (AbortHandlingCurrentMessageException) {
-                    // Roll back to our save point
-                    transaction.Rollback("UndoReceiveOnReceive");
-                    // in case AbortHandlingCurrentMessage was called
-                    // don't increment failures, we want this message kept around.
-                } catch {
-                    // Roll back to our save point
-                    transaction.Rollback("UndoReceiveOnReceive");
-                    IncrementFailuresForConversation(conversationHandle);
-                    OnFailedMessageProcessing();
-                }
-            });
+                });
+                ClearFailuresForConversation(conversationHandle);
+            } catch (AbortHandlingCurrentMessageException) {
+                // in case AbortHandlingCurrentMessage was called
+                // don't increment failures, we want this message kept around.
+            } catch {
+                IncrementFailuresForConversation(conversationHandle);
+                OnFailedMessageProcessing();
+            }
         }
 
         private void ReceiveFromQueue(SqlTransaction transaction) {
@@ -424,15 +411,9 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
 
         private void MoveToErrorService(Message message) {
             GetSqlTransactionManager().RunInTransaction(transaction => {
-                transaction.Save("UndoReceiveOnSendToErrorService");
-                try {
-                    var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReturnService, ErrorService, NServiceBusTransportMessageContract);
-                    ServiceBrokerWrapper.Send(transaction, conversationHandle, NServiceBusTransportMessage, message.Body);
-                    ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
-                } catch (Exception) {
-                    transaction.Rollback("UndoReceiveOnSendToErrorService");
-                    throw;
-                }
+                var conversationHandle = ServiceBrokerWrapper.BeginConversation(transaction, ReturnService, ErrorService, NServiceBusTransportMessageContract);
+                ServiceBrokerWrapper.Send(transaction, conversationHandle, NServiceBusTransportMessage, message.Body);
+                ServiceBrokerWrapper.EndConversation(transaction, conversationHandle);
             });
         }
 

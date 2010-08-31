@@ -35,6 +35,11 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
                     // We always commit our transactions, the callback might roll it back though
                     transaction.Commit();
                 }
+            } catch (Exception) {
+                if (disposeTransaction) {
+                    transaction.Rollback();
+                }
+                throw;
             } finally {
                 if (disposeTransaction) {
                     if (transaction != null) {
