@@ -16,6 +16,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker {
         public const string NServiceBusTransportMessage = "NServiceBusTransportMessage";
 
         public ServiceBrokerTransport() {
+            NumberOfWorkerThreads = 1;
             MaxRetries = 5;
             SecondsToWaitForMessage = 10;
         }
