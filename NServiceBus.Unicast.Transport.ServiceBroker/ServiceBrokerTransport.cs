@@ -230,6 +230,9 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker
                 // Use the conversation handle as the message Id
                 m.Id = conversationHandle.ToString();
 
+                // Set the time from the source machine when the message was sent
+                m.TimeSent = DateTime.UtcNow;
+
                 using (var stream = new MemoryStream())
                 {
                     // Serialize the transport message
@@ -304,9 +307,10 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker
             {
                 transportMessage.BodyStream = new MemoryStream();
                 MessageSerializer.Serialize(transportMessage.Body, transportMessage.BodyStream);
-                transportMessage.BodyStream.Position = 0;
             }
 
+            // Reset the stream, so that we can read it back out as data
+            transportMessage.BodyStream.Position = 0;
 
             var data = new StreamReader(transportMessage.BodyStream).ReadToEnd();
             var bodyElement = doc.CreateElement("Body");
