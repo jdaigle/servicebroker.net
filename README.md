@@ -46,17 +46,6 @@ The configuration for NServiceBus requires at a minimum the following:
  
 Optionally you can also tune *SecondsToWaitForMessage* which specifies how long the timeout should be for the SQL RECEIVE WAIT command.
 
-Current Limitations
--------------------
-
-The transport plugin is currently limited to using the binary message serializer. This is because the TransportMessage passed to/from the unicast bus is simply serialized as-is. Unlike MSMQ, Service Broker does not have a rich message header in which we can place most of the contents of the TransportMessage. Instead we need to send this information in the message body, and thus needs to be serialized. Due to the polymorphic nature of the payload IMessage[], we cannot successfully deserialize on the receiving end. We will need to create a specialized serializer which can serialize both the TransportMessage and the payload IMessage[] in a polymorphic safe way.
-
-Because we are currently limited to the binary message serializer we cannot perform XML validation within Service Broker.
-
-We are also restricted to sending only concrete IMessage types that are known by both endpoints so that the message can successfully be deserialized.
-
-Distributed transaction support has not been tested, and therefore is not yet included.
-
 Service Broker Automatic Poison Message Detection
 -------------------------------------------------
 
@@ -64,11 +53,6 @@ SQL Service Broker includes an automatic poison message detection mechanism, whi
 
 Obviously this is unacceptable for use with NServiceBus. Fortunately SQL Server 2008 R2 provides configuration to turn off this mechanism on a per-queue basis. Unfortunately it is only provided by SQL Server 2008 R2.
 
-Roadmap
--------
-
-1. Support for XML Serialization
-2. Support for Distributed Transactions
 
 Contact
 -------
