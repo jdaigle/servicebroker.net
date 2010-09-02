@@ -13,6 +13,7 @@ using NServiceBus.Serialization;
 using NServiceBus.Unicast.Transport.Msmq;
 using NServiceBus.Utils;
 using ServiceBroker.Net;
+using System.Transactions;
 
 namespace NServiceBus.Unicast.Transport.ServiceBroker
 {
@@ -76,6 +77,23 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker
         /// Sets the service the transport will transfer errors to.
         /// </summary>
         public string ErrorService { get; set; }
+
+        /// <summary>
+        /// Sets whether or not the transport is transactional.
+        /// </summary>
+        public bool UseDistributedTransaction { get; set; }
+
+        /// <summary>
+        /// Property for getting/setting the period of time when the transaction times out.
+        /// Only relevant when <see cref="IsTransactional"/> is set to true.
+        /// </summary>
+        public TimeSpan TransactionTimeout { get; set; }
+
+        /// <summary>
+        /// Property for getting/setting the isolation level of the transaction scope.
+        /// Only relevant when <see cref="IsTransactional"/> is set to true.
+        /// </summary>
+        public IsolationLevel IsolationLevel { get; set; }
 
         /// <summary>
         /// Sets the maximum number of times a message will be retried
@@ -267,7 +285,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker
 
             var payLoad = bodyDoc.DocumentElement.SelectSingleNode("Body").FirstChild as XmlCDataSection;
 
-            transportMessage.Body= ExtractMessages(payLoad);
+            transportMessage.Body = ExtractMessages(payLoad);
 
             return transportMessage;
         }
@@ -276,7 +294,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker
         {
             var messages = new XmlDocument();
             messages.LoadXml(data.Data);
-            using(var stream = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 messages.Save(stream);
                 stream.Position = 0;
@@ -287,10 +305,10 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker
         void SerializeToXml(TransportMessage transportMessage, MemoryStream stream)
         {
             var overrides = new XmlAttributeOverrides();
-            var attrs = new XmlAttributes {XmlIgnore = true};
+            var attrs = new XmlAttributes { XmlIgnore = true };
 
             overrides.Add(typeof(TransportMessage), "Messages", attrs);
-            var xs = new XmlSerializer(typeof(TransportMessage),overrides);
+            var xs = new XmlSerializer(typeof(TransportMessage), overrides);
 
             var doc = new XmlDocument();
 
@@ -316,7 +334,7 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker
             var bodyElement = doc.CreateElement("Body");
             bodyElement.AppendChild(doc.CreateCDataSection(data));
             doc.DocumentElement.AppendChild(bodyElement);
-         
+
             doc.Save(stream);
             stream.Position = 0;
 
@@ -385,10 +403,19 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker
 
             try
             {
-                GetSqlTransactionManager().RunInTransaction(transaction =>
+                Action processEx = () =>
                 {
-                    ReceiveFromQueue(transaction);
-                });
+                    GetSqlTransactionManager().RunInTransaction(transaction =>
+                    {
+                        ReceiveFromQueue(transaction);
+                    });
+                };
+
+                if (UseDistributedTransaction)
+                    new TransactionWrapper().RunInTransaction(processEx, IsolationLevel, TransactionTimeout);
+                else
+                    processEx();
+
                 ClearFailuresForConversation(conversationHandle);
             }
             catch (AbortHandlingCurrentMessageException)
