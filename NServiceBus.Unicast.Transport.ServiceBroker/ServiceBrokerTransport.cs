@@ -212,10 +212,20 @@ namespace NServiceBus.Unicast.Transport.ServiceBroker
         /// </summary>
         public void Start()
         {
+            VerifyConnection();
+
             if (!string.IsNullOrEmpty(InputQueue))
             {
                 for (int i = 0; i < numberOfWorkerThreads; i++)
                     AddWorkerThread().Start();
+            }
+        }
+
+        void VerifyConnection()
+        {
+            using(var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
             }
         }
 
