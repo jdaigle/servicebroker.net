@@ -66,9 +66,9 @@
       <Project>{79A15565-916C-41A0-BD86-AC806838D8CB}</Project>
       <Name>NServiceBus.Unicast.Transport.ServiceBroker</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ServiceBroker.Net\ServiceBroker.Net.csproj">
-      <Project>{9F497261-47C1-49F7-A2DC-0779A70ED6EC}</Project>
-      <Name>ServiceBroker.Net</Name>
+    <ProjectReference Include="..\ServiceBrokerDotNet\ServiceBrokerDotNet.csproj">
+      <Project>{9f497261-47c1-49f7-a2dc-0779a70ed6ec}</Project>
+      <Name>ServiceBrokerDotNet</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
