@@ -8,8 +8,8 @@
     <ProjectGuid>{9F497261-47C1-49F7-A2DC-0779A70ED6EC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServiceBroker.Net</RootNamespace>
-    <AssemblyName>ServiceBroker.Net</AssemblyName>
+    <RootNamespace>ServiceBrokerDotNet</RootNamespace>
+    <AssemblyName>ServiceBrokerDotNet</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

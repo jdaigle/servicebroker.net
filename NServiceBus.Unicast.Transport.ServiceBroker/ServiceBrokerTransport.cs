@@ -12,7 +12,7 @@ using NServiceBus.MessageInterfaces;
 using NServiceBus.Serialization;
 using NServiceBus.Unicast.Transport.Msmq;
 using NServiceBus.Utils;
-using ServiceBroker.Net;
+using ServiceBrokerDotNet;
 using System.Transactions;
 
 namespace NServiceBus.Unicast.Transport.ServiceBroker
