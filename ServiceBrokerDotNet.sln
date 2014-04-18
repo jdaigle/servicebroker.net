@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBroker.NServiceBus.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBrokerDotNet", "ServiceBrokerDotNet\ServiceBrokerDotNet.csproj", "{9F497261-47C1-49F7-A2DC-0779A70ED6EC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBrokerDotNet.Examples", "ServiceBrokerDotNet.Examples\ServiceBrokerDotNet.Examples.csproj", "{CFDEDF86-9AF0-4F2F-9DE7-FE29A8737C50}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,16 @@ Global
 		{9F497261-47C1-49F7-A2DC-0779A70ED6EC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{9F497261-47C1-49F7-A2DC-0779A70ED6EC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{9F497261-47C1-49F7-A2DC-0779A70ED6EC}.Release|x86.ActiveCfg = Release|Any CPU
+		{CFDEDF86-9AF0-4F2F-9DE7-FE29A8737C50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFDEDF86-9AF0-4F2F-9DE7-FE29A8737C50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFDEDF86-9AF0-4F2F-9DE7-FE29A8737C50}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CFDEDF86-9AF0-4F2F-9DE7-FE29A8737C50}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CFDEDF86-9AF0-4F2F-9DE7-FE29A8737C50}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CFDEDF86-9AF0-4F2F-9DE7-FE29A8737C50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFDEDF86-9AF0-4F2F-9DE7-FE29A8737C50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFDEDF86-9AF0-4F2F-9DE7-FE29A8737C50}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CFDEDF86-9AF0-4F2F-9DE7-FE29A8737C50}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CFDEDF86-9AF0-4F2F-9DE7-FE29A8737C50}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
