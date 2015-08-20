@@ -1,3 +1,8 @@
+#Update:
+
+This project is mostly abandonded. But updated library code will be integrated into: https://github.com/jdaigle/LightRail
+
+
 ServiceBroker.Net
 ========
 
